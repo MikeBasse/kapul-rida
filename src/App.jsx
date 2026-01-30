@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 
 const sampleContent = {
   title: "Introduction to Calculus",
@@ -44,43 +44,39 @@ Problem 3: If y = (2x + 1) / (x - 1), find dy/dx`
   ]
 }
 
-// Sample books with real cover images from Open Library
-const sampleBooks = [
+// Sample books with real cover images
+const initialBooks = [
   { 
+    id: 1,
     title: "Calculus", 
     author: "James Stewart", 
     progress: 35, 
-    cover: "https://covers.openlibrary.org/b/id/8091016-M.jpg"
+    cover: "https://covers.openlibrary.org/b/id/8091016-M.jpg",
+    format: "pdf"
   },
   { 
+    id: 2,
     title: "Organic Chemistry", 
     author: "David Klein", 
     progress: 12, 
-    cover: "https://covers.openlibrary.org/b/id/8504931-M.jpg"
+    cover: "https://covers.openlibrary.org/b/id/8504931-M.jpg",
+    format: "pdf"
   },
   { 
+    id: 3,
     title: "Physics", 
     author: "Halliday & Resnick", 
     progress: 67, 
-    cover: "https://covers.openlibrary.org/b/id/12648655-M.jpg"
+    cover: "https://covers.openlibrary.org/b/id/12648655-M.jpg",
+    format: "epub"
   },
   { 
+    id: 4,
     title: "Linear Algebra", 
     author: "Gilbert Strang", 
     progress: 8, 
-    cover: "https://covers.openlibrary.org/b/id/6946044-M.jpg"
-  },
-  { 
-    title: "Biology", 
-    author: "Campbell", 
-    progress: 45, 
-    cover: "https://covers.openlibrary.org/b/id/12760928-M.jpg"
-  },
-  { 
-    title: "Chemistry", 
-    author: "Zumdahl", 
-    progress: 0, 
-    cover: "https://covers.openlibrary.org/b/id/8236132-M.jpg"
+    cover: "https://covers.openlibrary.org/b/id/6946044-M.jpg",
+    format: "pdf"
   }
 ]
 
@@ -119,43 +115,40 @@ const getAIResponse = (type, text) => {
 function CuscusLogo({ size = 32 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Body/Face */}
       <ellipse cx="50" cy="55" rx="35" ry="32" fill="#C9A67A"/>
-      
-      {/* Ears */}
       <ellipse cx="20" cy="30" rx="12" ry="14" fill="#C9A67A"/>
       <ellipse cx="20" cy="30" rx="8" ry="10" fill="#E8B4B8"/>
       <ellipse cx="80" cy="30" rx="12" ry="14" fill="#C9A67A"/>
       <ellipse cx="80" cy="30" rx="8" ry="10" fill="#E8B4B8"/>
-      
-      {/* Spots on fur */}
       <circle cx="30" cy="45" r="5" fill="#B8956E" opacity="0.6"/>
       <circle cx="70" cy="50" r="4" fill="#B8956E" opacity="0.5"/>
       <circle cx="60" cy="38" r="3" fill="#B8956E" opacity="0.4"/>
-      <circle cx="38" cy="65" r="4" fill="#B8956E" opacity="0.5"/>
-      
-      {/* Eyes - large and round */}
       <circle cx="38" cy="52" r="11" fill="#2C1810"/>
       <circle cx="62" cy="52" r="11" fill="#2C1810"/>
-      
-      {/* Eye highlights */}
       <circle cx="41" cy="49" r="4" fill="#FFFFFF"/>
       <circle cx="65" cy="49" r="4" fill="#FFFFFF"/>
-      <circle cx="36" cy="55" r="2" fill="#FFFFFF" opacity="0.5"/>
-      <circle cx="60" cy="55" r="2" fill="#FFFFFF" opacity="0.5"/>
-      
-      {/* Nose */}
       <ellipse cx="50" cy="65" rx="5" ry="4" fill="#6B4423"/>
-      <ellipse cx="50" cy="64" rx="2.5" ry="1.5" fill="#8B5A2B" opacity="0.6"/>
-      
-      {/* Mouth */}
       <path d="M45 72 Q50 77 55 72" stroke="#6B4423" strokeWidth="2" fill="none" strokeLinecap="round"/>
-      
-      {/* Whisker dots */}
-      <circle cx="35" cy="68" r="1.5" fill="#6B4423" opacity="0.7"/>
-      <circle cx="30" cy="65" r="1.5" fill="#6B4423" opacity="0.7"/>
-      <circle cx="65" cy="68" r="1.5" fill="#6B4423" opacity="0.7"/>
-      <circle cx="70" cy="65" r="1.5" fill="#6B4423" opacity="0.7"/>
+    </svg>
+  )
+}
+
+// PDF Icon
+function PdfIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="4" y="2" width="16" height="20" rx="2" fill="#E53935"/>
+      <text x="12" y="15" textAnchor="middle" fill="white" fontSize="6" fontWeight="bold">PDF</text>
+    </svg>
+  )
+}
+
+// EPUB Icon
+function EpubIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="4" y="2" width="16" height="20" rx="2" fill="#43A047"/>
+      <text x="12" y="15" textAnchor="middle" fill="white" fontSize="5" fontWeight="bold">EPUB</text>
     </svg>
   )
 }
@@ -171,8 +164,12 @@ export default function App() {
   const [quizQuestions, setQuizQuestions] = useState([])
   const [quizIndex, setQuizIndex] = useState(0)
   const [showAnswer, setShowAnswer] = useState(false)
-  const [books, setBooks] = useState(sampleBooks)
-  const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
+  const [books, setBooks] = useState(initialBooks)
+  const [viewMode, setViewMode] = useState('grid')
+  const [showAddMenu, setShowAddMenu] = useState(false)
+  const [uploadError, setUploadError] = useState('')
+  
+  const fileInputRef = useRef(null)
 
   const handleSelect = () => {
     const text = window.getSelection().toString().trim()
@@ -197,6 +194,59 @@ export default function App() {
     setQuizActive(true)
   }
 
+  // Handle file upload
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+
+    // Check file type
+    const fileName = file.name.toLowerCase()
+    const isPdf = fileName.endsWith('.pdf')
+    const isEpub = fileName.endsWith('.epub')
+
+    if (!isPdf && !isEpub) {
+      setUploadError('Only PDF and EPUB files are supported')
+      setTimeout(() => setUploadError(''), 3000)
+      return
+    }
+
+    // Create book entry
+    const newBook = {
+      id: Date.now(),
+      title: file.name.replace(/\.(pdf|epub)$/i, ''),
+      author: 'Unknown Author',
+      progress: 0,
+      cover: null, // Will use placeholder
+      format: isPdf ? 'pdf' : 'epub',
+      fileSize: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
+      dateAdded: new Date().toLocaleDateString()
+    }
+
+    setBooks([newBook, ...books])
+    setShowAddMenu(false)
+    setUploadError('')
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  // Trigger file input click
+  const triggerFileUpload = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  // Delete book
+  const deleteBook = (bookId, e) => {
+    e.stopPropagation()
+    if (confirm('Remove this book from your library?')) {
+      setBooks(books.filter(b => b.id !== bookId))
+    }
+  }
+
   return (
     <>
       <style>{`
@@ -216,6 +266,7 @@ export default function App() {
           --accent: #d97706;
           --accent-bg: #fffbeb;
           --accent-border: #fde68a;
+          --danger: #dc2626;
         }
         
         @media (prefers-color-scheme: dark) {
@@ -230,6 +281,7 @@ export default function App() {
             --accent: #f59e0b;
             --accent-bg: #292524;
             --accent-border: #78350f;
+            --danger: #ef4444;
           }
         }
         
@@ -304,7 +356,7 @@ export default function App() {
           padding: 20px 16px;
         }
         
-        /* Reader */
+        /* Reader styles */
         .doc-header {
           margin-bottom: 28px;
           padding-bottom: 20px;
@@ -671,7 +723,7 @@ export default function App() {
           color: var(--text);
         }
         
-        /* Library tab - ReadEra style */
+        /* Library tab */
         .lib-header {
           display: flex;
           justify-content: space-between;
@@ -713,6 +765,11 @@ export default function App() {
           color: var(--text);
         }
         
+        /* Add button with dropdown */
+        .add-btn-container {
+          position: relative;
+        }
+        
         .add-btn {
           padding: 8px 14px;
           background: var(--accent);
@@ -722,9 +779,106 @@ export default function App() {
           font-weight: 500;
           color: white;
           cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 4px;
         }
         
-        /* Book Grid View - ReadEra style */
+        .add-menu {
+          position: absolute;
+          top: calc(100% + 8px);
+          right: 0;
+          background: var(--bg);
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+          min-width: 220px;
+          z-index: 200;
+          overflow: hidden;
+        }
+        
+        .add-menu-header {
+          padding: 12px 16px;
+          border-bottom: 1px solid var(--border);
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--text);
+        }
+        
+        .add-menu-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 16px;
+          cursor: pointer;
+          transition: background 0.15s;
+        }
+        
+        .add-menu-item:hover {
+          background: var(--bg-secondary);
+        }
+        
+        .add-menu-icon {
+          width: 40px;
+          height: 40px;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .add-menu-icon.pdf {
+          background: #fce4ec;
+        }
+        
+        .add-menu-icon.epub {
+          background: #e8f5e9;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+          .add-menu-icon.pdf {
+            background: #4a1c1c;
+          }
+          .add-menu-icon.epub {
+            background: #1c3a1c;
+          }
+        }
+        
+        .add-menu-text {
+          flex: 1;
+        }
+        
+        .add-menu-title {
+          font-size: 14px;
+          font-weight: 500;
+          color: var(--text);
+        }
+        
+        .add-menu-desc {
+          font-size: 12px;
+          color: var(--text-secondary);
+        }
+        
+        .upload-error {
+          position: fixed;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: var(--danger);
+          color: white;
+          padding: 12px 20px;
+          border-radius: 8px;
+          font-size: 14px;
+          z-index: 400;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        /* Hidden file input */
+        .file-input {
+          display: none;
+        }
+        
+        /* Book Grid View */
         .book-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
@@ -734,6 +888,7 @@ export default function App() {
         .book-grid-item {
           cursor: pointer;
           transition: transform 0.15s;
+          position: relative;
         }
         
         .book-grid-item:hover {
@@ -747,13 +902,58 @@ export default function App() {
           overflow: hidden;
           box-shadow: 0 2px 8px rgba(0,0,0,0.15);
           margin-bottom: 8px;
+          background: var(--bg-tertiary);
         }
         
         .book-cover-img {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          background: var(--bg-tertiary);
+        }
+        
+        .book-cover-placeholder {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+          padding: 12px;
+        }
+        
+        .book-cover-placeholder-title {
+          font-size: 11px;
+          font-weight: 600;
+          color: var(--text);
+          text-align: center;
+          margin-top: 8px;
+          line-height: 1.3;
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        
+        .book-format-badge {
+          position: absolute;
+          top: 6px;
+          right: 6px;
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-size: 9px;
+          font-weight: 600;
+          text-transform: uppercase;
+        }
+        
+        .book-format-badge.pdf {
+          background: #E53935;
+          color: white;
+        }
+        
+        .book-format-badge.epub {
+          background: #43A047;
+          color: white;
         }
         
         .book-progress-overlay {
@@ -768,6 +968,27 @@ export default function App() {
         .book-progress-bar {
           height: 100%;
           background: var(--accent);
+        }
+        
+        .book-delete-btn {
+          position: absolute;
+          top: 6px;
+          left: 6px;
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          background: rgba(0,0,0,0.6);
+          border: none;
+          color: white;
+          font-size: 14px;
+          cursor: pointer;
+          display: none;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .book-grid-item:hover .book-delete-btn {
+          display: flex;
         }
         
         .book-grid-title {
@@ -801,6 +1022,7 @@ export default function App() {
           border-radius: 10px;
           cursor: pointer;
           transition: all 0.15s;
+          position: relative;
         }
         
         .book-list-item:hover {
@@ -814,6 +1036,18 @@ export default function App() {
           object-fit: cover;
           flex-shrink: 0;
           box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+          background: var(--bg-tertiary);
+        }
+        
+        .book-list-cover-placeholder {
+          width: 50px;
+          height: 70px;
+          border-radius: 4px;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
         }
         
         .book-list-info {
@@ -829,6 +1063,9 @@ export default function App() {
           font-weight: 500;
           color: var(--text);
           margin-bottom: 2px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
         
         .book-list-author {
@@ -854,6 +1091,86 @@ export default function App() {
           font-size: 11px;
           color: var(--text-tertiary);
           margin-top: 4px;
+        }
+        
+        .book-list-delete {
+          position: absolute;
+          top: 50%;
+          right: 12px;
+          transform: translateY(-50%);
+          width: 28px;
+          height: 28px;
+          border-radius: 6px;
+          background: var(--bg-tertiary);
+          border: none;
+          color: var(--text-secondary);
+          font-size: 16px;
+          cursor: pointer;
+          display: none;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .book-list-item:hover .book-list-delete {
+          display: flex;
+        }
+        
+        .book-list-delete:hover {
+          background: var(--danger);
+          color: white;
+        }
+        
+        .format-tag {
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-size: 10px;
+          font-weight: 600;
+          text-transform: uppercase;
+        }
+        
+        .format-tag.pdf {
+          background: #fce4ec;
+          color: #c62828;
+        }
+        
+        .format-tag.epub {
+          background: #e8f5e9;
+          color: #2e7d32;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+          .format-tag.pdf {
+            background: #4a1c1c;
+            color: #ef5350;
+          }
+          .format-tag.epub {
+            background: #1c3a1c;
+            color: #66bb6a;
+          }
+        }
+        
+        /* Empty state */
+        .empty-state {
+          text-align: center;
+          padding: 60px 20px;
+          color: var(--text-secondary);
+        }
+        
+        .empty-state-icon {
+          font-size: 48px;
+          margin-bottom: 16px;
+        }
+        
+        .empty-state-text {
+          font-size: 15px;
+          margin-bottom: 16px;
+        }
+        
+        /* Overlay backdrop */
+        .overlay-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 150;
         }
         
         /* Desktop styles */
@@ -914,6 +1231,15 @@ export default function App() {
       `}</style>
       
       <div className="app">
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,.epub"
+          onChange={handleFileUpload}
+          className="file-input"
+        />
+        
         <header className="header">
           <div className="logo">
             <CuscusLogo size={28} />
@@ -1020,28 +1346,85 @@ export default function App() {
                       ☰
                     </button>
                   </div>
-                  <button className="add-btn">+ Add</button>
+                  
+                  <div className="add-btn-container">
+                    <button 
+                      className="add-btn"
+                      onClick={() => setShowAddMenu(!showAddMenu)}
+                    >
+                      + Add
+                    </button>
+                    
+                    {showAddMenu && (
+                      <>
+                        <div className="overlay-backdrop" onClick={() => setShowAddMenu(false)} />
+                        <div className="add-menu">
+                          <div className="add-menu-header">Add to Library</div>
+                          <div className="add-menu-item" onClick={triggerFileUpload}>
+                            <div className="add-menu-icon pdf">
+                              <PdfIcon />
+                            </div>
+                            <div className="add-menu-text">
+                              <div className="add-menu-title">PDF Document</div>
+                              <div className="add-menu-desc">Upload a PDF file</div>
+                            </div>
+                          </div>
+                          <div className="add-menu-item" onClick={triggerFileUpload}>
+                            <div className="add-menu-icon epub">
+                              <EpubIcon />
+                            </div>
+                            <div className="add-menu-text">
+                              <div className="add-menu-title">EPUB Book</div>
+                              <div className="add-menu-desc">Upload an EPUB file</div>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
               
-              {viewMode === 'grid' ? (
+              {books.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-state-icon">📚</div>
+                  <div className="empty-state-text">Your library is empty</div>
+                  <button className="add-btn" onClick={() => setShowAddMenu(true)}>
+                    + Add your first book
+                  </button>
+                </div>
+              ) : viewMode === 'grid' ? (
                 <div className="book-grid">
-                  {books.map((book, i) => (
-                    <div key={i} className="book-grid-item" onClick={() => setActiveTab('reader')}>
+                  {books.map((book) => (
+                    <div key={book.id} className="book-grid-item" onClick={() => setActiveTab('reader')}>
                       <div className="book-cover-container">
-                        <img 
-                          src={book.cover} 
-                          alt={book.title}
-                          className="book-cover-img"
-                          onError={(e) => {
-                            e.target.style.display = 'none'
-                          }}
-                        />
+                        {book.cover ? (
+                          <img 
+                            src={book.cover} 
+                            alt={book.title}
+                            className="book-cover-img"
+                            onError={(e) => {
+                              e.target.style.display = 'none'
+                              e.target.nextSibling.style.display = 'flex'
+                            }}
+                          />
+                        ) : null}
+                        <div className="book-cover-placeholder" style={{display: book.cover ? 'none' : 'flex'}}>
+                          {book.format === 'pdf' ? <PdfIcon /> : <EpubIcon />}
+                          <div className="book-cover-placeholder-title">{book.title}</div>
+                        </div>
+                        <span className={`book-format-badge ${book.format}`}>{book.format}</span>
                         {book.progress > 0 && (
                           <div className="book-progress-overlay">
                             <div className="book-progress-bar" style={{width: `${book.progress}%`}} />
                           </div>
                         )}
+                        <button 
+                          className="book-delete-btn"
+                          onClick={(e) => deleteBook(book.id, e)}
+                        >
+                          ×
+                        </button>
                       </div>
                       <div className="book-grid-title">{book.title}</div>
                       <div className="book-grid-author">{book.author}</div>
@@ -1050,21 +1433,39 @@ export default function App() {
                 </div>
               ) : (
                 <div className="book-list">
-                  {books.map((book, i) => (
-                    <div key={i} className="book-list-item" onClick={() => setActiveTab('reader')}>
-                      <img 
-                        src={book.cover} 
-                        alt={book.title}
-                        className="book-list-cover"
-                      />
+                  {books.map((book) => (
+                    <div key={book.id} className="book-list-item" onClick={() => setActiveTab('reader')}>
+                      {book.cover ? (
+                        <img 
+                          src={book.cover} 
+                          alt={book.title}
+                          className="book-list-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none'
+                            e.target.nextSibling.style.display = 'flex'
+                          }}
+                        />
+                      ) : null}
+                      <div className="book-list-cover-placeholder" style={{display: book.cover ? 'none' : 'flex'}}>
+                        {book.format === 'pdf' ? <PdfIcon /> : <EpubIcon />}
+                      </div>
                       <div className="book-list-info">
-                        <div className="book-list-title">{book.title}</div>
+                        <div className="book-list-title">
+                          {book.title}
+                          <span className={`format-tag ${book.format}`}>{book.format}</span>
+                        </div>
                         <div className="book-list-author">{book.author}</div>
                         <div className="book-list-progress">
                           <div className="book-list-progress-fill" style={{width: `${book.progress}%`}} />
                         </div>
                         <div className="book-list-percent">{book.progress}% complete</div>
                       </div>
+                      <button 
+                        className="book-list-delete"
+                        onClick={(e) => deleteBook(book.id, e)}
+                      >
+                        ×
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -1147,6 +1548,11 @@ export default function App() {
               <button className="close-quiz" onClick={() => setQuizActive(false)}>×</button>
             </div>
           </div>
+        )}
+        
+        {/* Upload Error Toast */}
+        {uploadError && (
+          <div className="upload-error">{uploadError}</div>
         )}
       </div>
     </>
