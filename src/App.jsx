@@ -1413,7 +1413,7 @@ export default function App() {
                           {book.format === 'pdf' ? <PdfIcon /> : <EpubIcon />}
                           <div className="book-cover-placeholder-title">{book.title}</div>
                         </div>
-                        <span className={`book-format-badge ${book.format}`}>{book.format}</span>
+                        
                         {book.progress > 0 && (
                           <div className="book-progress-overlay">
                             <div className="book-progress-bar" style={{width: `${book.progress}%`}} />
@@ -1452,7 +1452,6 @@ export default function App() {
                       <div className="book-list-info">
                         <div className="book-list-title">
                           {book.title}
-                          <span className={`format-tag ${book.format}`}>{book.format}</span>
                         </div>
                         <div className="book-list-author">{book.author}</div>
                         <div className="book-list-progress">
