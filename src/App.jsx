@@ -44,6 +44,46 @@ Problem 3: If y = (2x + 1) / (x - 1), find dy/dx`
   ]
 }
 
+// Sample books with real cover images from Open Library
+const sampleBooks = [
+  { 
+    title: "Calculus", 
+    author: "James Stewart", 
+    progress: 35, 
+    cover: "https://covers.openlibrary.org/b/id/8091016-M.jpg"
+  },
+  { 
+    title: "Organic Chemistry", 
+    author: "David Klein", 
+    progress: 12, 
+    cover: "https://covers.openlibrary.org/b/id/8504931-M.jpg"
+  },
+  { 
+    title: "Physics", 
+    author: "Halliday & Resnick", 
+    progress: 67, 
+    cover: "https://covers.openlibrary.org/b/id/12648655-M.jpg"
+  },
+  { 
+    title: "Linear Algebra", 
+    author: "Gilbert Strang", 
+    progress: 8, 
+    cover: "https://covers.openlibrary.org/b/id/6946044-M.jpg"
+  },
+  { 
+    title: "Biology", 
+    author: "Campbell", 
+    progress: 45, 
+    cover: "https://covers.openlibrary.org/b/id/12760928-M.jpg"
+  },
+  { 
+    title: "Chemistry", 
+    author: "Zumdahl", 
+    progress: 0, 
+    cover: "https://covers.openlibrary.org/b/id/8236132-M.jpg"
+  }
+]
+
 const getAIResponse = (type, text) => {
   const responses = {
     explain: {
@@ -75,6 +115,51 @@ const getAIResponse = (type, text) => {
   return "Select text to get an explanation."
 }
 
+// Cuscus (Kapul) Logo SVG Component
+function CuscusLogo({ size = 32 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Body/Face */}
+      <ellipse cx="50" cy="55" rx="35" ry="32" fill="#C9A67A"/>
+      
+      {/* Ears */}
+      <ellipse cx="20" cy="30" rx="12" ry="14" fill="#C9A67A"/>
+      <ellipse cx="20" cy="30" rx="8" ry="10" fill="#E8B4B8"/>
+      <ellipse cx="80" cy="30" rx="12" ry="14" fill="#C9A67A"/>
+      <ellipse cx="80" cy="30" rx="8" ry="10" fill="#E8B4B8"/>
+      
+      {/* Spots on fur */}
+      <circle cx="30" cy="45" r="5" fill="#B8956E" opacity="0.6"/>
+      <circle cx="70" cy="50" r="4" fill="#B8956E" opacity="0.5"/>
+      <circle cx="60" cy="38" r="3" fill="#B8956E" opacity="0.4"/>
+      <circle cx="38" cy="65" r="4" fill="#B8956E" opacity="0.5"/>
+      
+      {/* Eyes - large and round */}
+      <circle cx="38" cy="52" r="11" fill="#2C1810"/>
+      <circle cx="62" cy="52" r="11" fill="#2C1810"/>
+      
+      {/* Eye highlights */}
+      <circle cx="41" cy="49" r="4" fill="#FFFFFF"/>
+      <circle cx="65" cy="49" r="4" fill="#FFFFFF"/>
+      <circle cx="36" cy="55" r="2" fill="#FFFFFF" opacity="0.5"/>
+      <circle cx="60" cy="55" r="2" fill="#FFFFFF" opacity="0.5"/>
+      
+      {/* Nose */}
+      <ellipse cx="50" cy="65" rx="5" ry="4" fill="#6B4423"/>
+      <ellipse cx="50" cy="64" rx="2.5" ry="1.5" fill="#8B5A2B" opacity="0.6"/>
+      
+      {/* Mouth */}
+      <path d="M45 72 Q50 77 55 72" stroke="#6B4423" strokeWidth="2" fill="none" strokeLinecap="round"/>
+      
+      {/* Whisker dots */}
+      <circle cx="35" cy="68" r="1.5" fill="#6B4423" opacity="0.7"/>
+      <circle cx="30" cy="65" r="1.5" fill="#6B4423" opacity="0.7"/>
+      <circle cx="65" cy="68" r="1.5" fill="#6B4423" opacity="0.7"/>
+      <circle cx="70" cy="65" r="1.5" fill="#6B4423" opacity="0.7"/>
+    </svg>
+  )
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('reader')
   const [selectedText, setSelectedText] = useState('')
@@ -86,6 +171,8 @@ export default function App() {
   const [quizQuestions, setQuizQuestions] = useState([])
   const [quizIndex, setQuizIndex] = useState(0)
   const [showAnswer, setShowAnswer] = useState(false)
+  const [books, setBooks] = useState(sampleBooks)
+  const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
 
   const handleSelect = () => {
     const text = window.getSelection().toString().trim()
@@ -159,12 +246,12 @@ export default function App() {
           flex-direction: column;
         }
         
-        /* Header - Claude style */
+        /* Header */
         .header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 12px 16px;
+          padding: 10px 16px;
           border-bottom: 1px solid var(--border);
           background: var(--bg);
           position: sticky;
@@ -181,25 +268,13 @@ export default function App() {
           color: var(--text);
         }
         
-        .logo-icon {
-          width: 24px;
-          height: 24px;
-          background: linear-gradient(135deg, #d97706, #b45309);
-          border-radius: 6px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-size: 12px;
-        }
-        
         .nav {
           display: flex;
-          gap: 4px;
+          gap: 2px;
         }
         
         .nav-btn {
-          padding: 8px 16px;
+          padding: 8px 14px;
           background: transparent;
           border: none;
           border-radius: 6px;
@@ -223,22 +298,22 @@ export default function App() {
         /* Main content */
         .main {
           flex: 1;
-          max-width: 800px;
+          max-width: 900px;
           width: 100%;
           margin: 0 auto;
-          padding: 24px 16px;
+          padding: 20px 16px;
         }
         
         /* Reader */
         .doc-header {
-          margin-bottom: 32px;
-          padding-bottom: 24px;
+          margin-bottom: 28px;
+          padding-bottom: 20px;
           border-bottom: 1px solid var(--border);
         }
         
         .doc-title {
           font-family: 'Source Serif 4', Georgia, serif;
-          font-size: 28px;
+          font-size: 26px;
           font-weight: 600;
           color: var(--text);
           margin-bottom: 4px;
@@ -247,7 +322,7 @@ export default function App() {
         .doc-subtitle {
           font-size: 14px;
           color: var(--text-secondary);
-          margin-bottom: 16px;
+          margin-bottom: 14px;
         }
         
         .progress-row {
@@ -278,21 +353,21 @@ export default function App() {
         }
         
         .section {
-          margin-bottom: 32px;
+          margin-bottom: 28px;
         }
         
         .section-heading {
           font-family: 'Source Serif 4', Georgia, serif;
-          font-size: 20px;
+          font-size: 18px;
           font-weight: 600;
           color: var(--text);
-          margin-bottom: 16px;
+          margin-bottom: 14px;
         }
         
         .paragraph {
-          font-size: 16px;
+          font-size: 15px;
           color: var(--text);
-          margin-bottom: 16px;
+          margin-bottom: 14px;
           line-height: 1.75;
         }
         
@@ -307,7 +382,7 @@ export default function App() {
           padding: 16px;
           transform: translateY(100%);
           transition: transform 0.25s ease;
-          max-height: 60vh;
+          max-height: 55vh;
           overflow-y: auto;
           z-index: 200;
         }
@@ -324,6 +399,9 @@ export default function App() {
         }
         
         .ai-title {
+          display: flex;
+          align-items: center;
+          gap: 8px;
           font-size: 14px;
           font-weight: 600;
           color: var(--accent);
@@ -363,7 +441,7 @@ export default function App() {
         .ai-actions {
           display: flex;
           gap: 8px;
-          margin-bottom: 16px;
+          margin-bottom: 14px;
         }
         
         .ai-btn {
@@ -379,15 +457,16 @@ export default function App() {
           transition: all 0.15s;
         }
         
-        .ai-btn:hover {
+        .ai-btn:hover, .ai-btn:active {
           background: var(--bg-tertiary);
           border-color: var(--text-tertiary);
         }
         
         .ai-response {
-          font-size: 15px;
+          font-size: 14px;
           line-height: 1.7;
           color: var(--text);
+          white-space: pre-line;
         }
         
         .loading {
@@ -406,9 +485,9 @@ export default function App() {
           align-items: center;
           background: var(--bg-secondary);
           border: 1px solid var(--border);
-          padding: 10px 16px;
+          padding: 8px 14px;
           border-radius: 24px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
           z-index: 150;
         }
         
@@ -418,10 +497,10 @@ export default function App() {
         }
         
         .quiz-btn {
-          padding: 8px 16px;
+          padding: 6px 14px;
           background: var(--accent);
           border: none;
-          border-radius: 20px;
+          border-radius: 16px;
           color: white;
           font-size: 13px;
           font-weight: 500;
@@ -454,7 +533,7 @@ export default function App() {
           justify-content: space-between;
           font-size: 13px;
           color: var(--text-secondary);
-          margin-bottom: 20px;
+          margin-bottom: 16px;
         }
         
         .quiz-progress {
@@ -464,9 +543,9 @@ export default function App() {
         
         .quiz-question {
           font-family: 'Source Serif 4', Georgia, serif;
-          font-size: 20px;
+          font-size: 18px;
           color: var(--text);
-          margin-bottom: 24px;
+          margin-bottom: 20px;
           line-height: 1.5;
         }
         
@@ -474,8 +553,8 @@ export default function App() {
           background: #ecfdf5;
           border: 1px solid #a7f3d0;
           border-radius: 8px;
-          padding: 16px;
-          margin-bottom: 16px;
+          padding: 14px;
+          margin-bottom: 14px;
           color: #065f46;
         }
         
@@ -522,8 +601,8 @@ export default function App() {
         
         .close-quiz {
           position: absolute;
-          top: 16px;
-          right: 16px;
+          top: 12px;
+          right: 12px;
           background: none;
           border: none;
           font-size: 24px;
@@ -535,49 +614,49 @@ export default function App() {
         .stats-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
-          gap: 12px;
+          gap: 10px;
           margin-bottom: 24px;
         }
         
         .stat-card {
           background: var(--bg-secondary);
           border: 1px solid var(--border);
-          border-radius: 12px;
-          padding: 20px;
+          border-radius: 10px;
+          padding: 16px;
           text-align: center;
         }
         
         .stat-value {
-          font-size: 28px;
+          font-size: 26px;
           font-weight: 600;
           color: var(--text);
         }
         
         .stat-label {
-          font-size: 13px;
+          font-size: 12px;
           color: var(--text-secondary);
-          margin-top: 4px;
+          margin-top: 2px;
         }
         
         .section-title {
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 600;
           color: var(--text);
-          margin-bottom: 16px;
+          margin-bottom: 12px;
         }
         
         .card-list {
           display: flex;
           flex-direction: column;
           gap: 8px;
-          margin-bottom: 16px;
+          margin-bottom: 20px;
         }
         
         .card-item {
           background: var(--bg-secondary);
           border: 1px solid var(--border);
           border-radius: 8px;
-          padding: 14px 16px;
+          padding: 12px 14px;
           font-size: 14px;
           color: var(--text);
         }
@@ -585,119 +664,214 @@ export default function App() {
         .highlight-item {
           background: var(--accent-bg);
           border-left: 3px solid var(--accent);
-          padding: 12px 16px;
+          padding: 10px 14px;
           margin-bottom: 8px;
           border-radius: 0 8px 8px 0;
           font-size: 14px;
           color: var(--text);
         }
         
-        /* Library tab */
+        /* Library tab - ReadEra style */
         .lib-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 20px;
+          margin-bottom: 16px;
         }
         
         .lib-title {
           font-family: 'Source Serif 4', Georgia, serif;
-          font-size: 24px;
+          font-size: 22px;
           font-weight: 600;
         }
         
-        .add-btn {
-          padding: 8px 16px;
+        .lib-actions {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+        }
+        
+        .view-toggle {
+          display: flex;
           background: var(--bg-secondary);
           border: 1px solid var(--border);
-          border-radius: 8px;
+          border-radius: 6px;
+          overflow: hidden;
+        }
+        
+        .view-btn {
+          padding: 6px 10px;
+          background: transparent;
+          border: none;
+          color: var(--text-secondary);
           font-size: 14px;
-          color: var(--text);
           cursor: pointer;
         }
         
+        .view-btn.active {
+          background: var(--bg-tertiary);
+          color: var(--text);
+        }
+        
+        .add-btn {
+          padding: 8px 14px;
+          background: var(--accent);
+          border: none;
+          border-radius: 6px;
+          font-size: 13px;
+          font-weight: 500;
+          color: white;
+          cursor: pointer;
+        }
+        
+        /* Book Grid View - ReadEra style */
+        .book-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
+        }
+        
+        .book-grid-item {
+          cursor: pointer;
+          transition: transform 0.15s;
+        }
+        
+        .book-grid-item:hover {
+          transform: translateY(-2px);
+        }
+        
+        .book-cover-container {
+          position: relative;
+          aspect-ratio: 2/3;
+          border-radius: 4px;
+          overflow: hidden;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+          margin-bottom: 8px;
+        }
+        
+        .book-cover-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          background: var(--bg-tertiary);
+        }
+        
+        .book-progress-overlay {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: rgba(0,0,0,0.3);
+        }
+        
+        .book-progress-bar {
+          height: 100%;
+          background: var(--accent);
+        }
+        
+        .book-grid-title {
+          font-size: 13px;
+          font-weight: 500;
+          color: var(--text);
+          margin-bottom: 2px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        
+        .book-grid-author {
+          font-size: 11px;
+          color: var(--text-secondary);
+        }
+        
+        /* Book List View */
         .book-list {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 10px;
         }
         
-        .book-item {
+        .book-list-item {
           display: flex;
-          gap: 16px;
-          padding: 16px;
+          gap: 14px;
+          padding: 12px;
           background: var(--bg-secondary);
           border: 1px solid var(--border);
-          border-radius: 12px;
+          border-radius: 10px;
           cursor: pointer;
           transition: all 0.15s;
         }
         
-        .book-item:hover {
+        .book-list-item:hover {
           border-color: var(--text-tertiary);
         }
         
-        .book-cover {
-          width: 48px;
-          height: 64px;
-          border-radius: 6px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-family: 'Source Serif 4', Georgia, serif;
-          font-size: 20px;
-          font-weight: 600;
-          color: white;
+        .book-list-cover {
+          width: 50px;
+          height: 70px;
+          border-radius: 4px;
+          object-fit: cover;
           flex-shrink: 0;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.1);
         }
         
-        .book-info {
+        .book-list-info {
           flex: 1;
           min-width: 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
         }
         
-        .book-title {
-          font-size: 15px;
+        .book-list-title {
+          font-size: 14px;
           font-weight: 500;
           color: var(--text);
           margin-bottom: 2px;
         }
         
-        .book-author {
-          font-size: 13px;
+        .book-list-author {
+          font-size: 12px;
           color: var(--text-secondary);
           margin-bottom: 8px;
         }
         
-        .book-progress {
-          height: 4px;
+        .book-list-progress {
+          height: 3px;
           background: var(--bg-tertiary);
           border-radius: 2px;
           overflow: hidden;
         }
         
-        .book-progress-fill {
+        .book-list-progress-fill {
           height: 100%;
           background: var(--accent);
           border-radius: 2px;
         }
         
+        .book-list-percent {
+          font-size: 11px;
+          color: var(--text-tertiary);
+          margin-top: 4px;
+        }
+        
         /* Desktop styles */
         @media (min-width: 768px) {
           .header {
-            padding: 16px 24px;
+            padding: 12px 24px;
           }
           
           .nav-btn {
-            padding: 8px 20px;
+            padding: 8px 18px;
           }
           
           .main {
-            padding: 40px 24px;
+            padding: 32px 24px;
           }
           
           .doc-title {
-            font-size: 36px;
+            font-size: 32px;
           }
           
           .ai-panel {
@@ -706,11 +880,11 @@ export default function App() {
             top: 80px;
             left: auto;
             right: 24px;
-            width: 380px;
+            width: 360px;
             max-height: calc(100vh - 120px);
             border: 1px solid var(--border);
             border-radius: 12px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             transform: translateX(calc(100% + 24px));
           }
           
@@ -725,13 +899,24 @@ export default function App() {
           .stats-grid {
             grid-template-columns: repeat(4, 1fr);
           }
+          
+          .book-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+          }
+        }
+        
+        @media (min-width: 1024px) {
+          .book-grid {
+            grid-template-columns: repeat(5, 1fr);
+          }
         }
       `}</style>
       
       <div className="app">
         <header className="header">
           <div className="logo">
-            <div className="logo-icon">K</div>
+            <CuscusLogo size={28} />
             <span>Kapul Reader</span>
           </div>
           <nav className="nav">
@@ -820,30 +1005,70 @@ export default function App() {
             <>
               <div className="lib-header">
                 <h1 className="lib-title">Library</h1>
-                <button className="add-btn">+ Add book</button>
+                <div className="lib-actions">
+                  <div className="view-toggle">
+                    <button 
+                      className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                      onClick={() => setViewMode('grid')}
+                    >
+                      ▦
+                    </button>
+                    <button 
+                      className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+                      onClick={() => setViewMode('list')}
+                    >
+                      ☰
+                    </button>
+                  </div>
+                  <button className="add-btn">+ Add</button>
+                </div>
               </div>
               
-              <div className="book-list">
-                {[
-                  { title: "Introduction to Calculus", author: "Stewart", progress: 35, color: "#3b82f6" },
-                  { title: "Organic Chemistry", author: "Klein", progress: 12, color: "#10b981" },
-                  { title: "Physics Principles", author: "Halliday", progress: 67, color: "#f59e0b" },
-                  { title: "Linear Algebra", author: "Strang", progress: 0, color: "#8b5cf6" },
-                ].map((book, i) => (
-                  <div key={i} className="book-item" onClick={() => setActiveTab('reader')}>
-                    <div className="book-cover" style={{background: book.color}}>
-                      {book.title[0]}
+              {viewMode === 'grid' ? (
+                <div className="book-grid">
+                  {books.map((book, i) => (
+                    <div key={i} className="book-grid-item" onClick={() => setActiveTab('reader')}>
+                      <div className="book-cover-container">
+                        <img 
+                          src={book.cover} 
+                          alt={book.title}
+                          className="book-cover-img"
+                          onError={(e) => {
+                            e.target.style.display = 'none'
+                          }}
+                        />
+                        {book.progress > 0 && (
+                          <div className="book-progress-overlay">
+                            <div className="book-progress-bar" style={{width: `${book.progress}%`}} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="book-grid-title">{book.title}</div>
+                      <div className="book-grid-author">{book.author}</div>
                     </div>
-                    <div className="book-info">
-                      <div className="book-title">{book.title}</div>
-                      <div className="book-author">{book.author}</div>
-                      <div className="book-progress">
-                        <div className="book-progress-fill" style={{width: `${book.progress}%`}} />
+                  ))}
+                </div>
+              ) : (
+                <div className="book-list">
+                  {books.map((book, i) => (
+                    <div key={i} className="book-list-item" onClick={() => setActiveTab('reader')}>
+                      <img 
+                        src={book.cover} 
+                        alt={book.title}
+                        className="book-list-cover"
+                      />
+                      <div className="book-list-info">
+                        <div className="book-list-title">{book.title}</div>
+                        <div className="book-list-author">{book.author}</div>
+                        <div className="book-list-progress">
+                          <div className="book-list-progress-fill" style={{width: `${book.progress}%`}} />
+                        </div>
+                        <div className="book-list-percent">{book.progress}% complete</div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </>
           )}
         </main>
@@ -859,7 +1084,10 @@ export default function App() {
         {/* AI Panel */}
         <div className={`ai-panel ${showAI ? 'open' : ''}`}>
           <div className="ai-header">
-            <span className="ai-title">Kapul AI</span>
+            <span className="ai-title">
+              <CuscusLogo size={20} />
+              Kapul AI
+            </span>
             <button className="close-btn" onClick={() => setShowAI(false)}>×</button>
           </div>
           
