@@ -13,7 +13,7 @@ Consider a function f(x). The derivative, denoted f'(x) or df/dx, is defined as:
 
 f'(x) = lim[h→0] (f(x+h) - f(x)) / h
 
-This limit, when it exists, gives us the instantaneous rate of change of f at the point x.`
+This limit, when it exists, gives us the instantaneous rate of change of f at the point x. Geometrically, this represents the slope of the tangent line to the curve at that point.`
     },
     {
       id: 2,
@@ -26,7 +26,9 @@ Constant Rule: If f(x) = c (constant), then f'(x) = 0
 
 Sum Rule: (f + g)' = f' + g'
 
-Product Rule: (fg)' = f'g + fg'`
+Product Rule: (fg)' = f'g + fg'
+
+Quotient Rule: (f/g)' = (f'g - fg') / g²`
     },
     {
       id: 3,
@@ -35,7 +37,9 @@ Product Rule: (fg)' = f'g + fg'`
 
 Problem 1: Find f'(x) if f(x) = 5x³ - 2x² + 4x - 1
 
-Problem 2: Differentiate g(x) = (x² + 1)(x - 3)`
+Problem 2: Differentiate g(x) = (x² + 1)(x - 3)
+
+Problem 3: If y = (2x + 1) / (x - 1), find dy/dx`
     }
   ]
 }
@@ -43,18 +47,18 @@ Problem 2: Differentiate g(x) = (x² + 1)(x - 3)`
 const getAIResponse = (type, text) => {
   const responses = {
     explain: {
-      "derivative": "Think of a derivative as the 'speedometer' of a function. It tells you how fast your function is changing at any point.",
-      "limit": "A limit describes what happens as we get infinitely close to something, without actually reaching it.",
-      "power rule": "The Power Rule: bring the exponent down as a coefficient, then reduce the exponent by 1. So x⁵ becomes 5x⁴.",
-      "default": "This concept relates to how functions change. Calculus gives us tools to measure instantaneous change."
+      "derivative": "A derivative measures how fast something changes. Think of it like a speedometer — it tells you your speed at any exact moment, not your average speed over a trip.",
+      "limit": "A limit describes approaching a value without necessarily reaching it. Like walking halfway to a wall, then half of that remaining distance, forever getting closer but never touching.",
+      "power rule": "The Power Rule: multiply by the exponent, then subtract 1 from the exponent. So x⁵ becomes 5x⁴.",
+      "default": "This relates to measuring change. Select a specific term for a more detailed explanation."
     },
     solve: {
-      "5x³ - 2x² + 4x - 1": "Step by step:\n\n• d/dx(5x³) = 15x²\n• d/dx(-2x²) = -4x\n• d/dx(4x) = 4\n• d/dx(-1) = 0\n\nAnswer: f'(x) = 15x² - 4x + 4",
-      "default": "Select the specific problem text for a detailed walkthrough."
+      "5x³ - 2x² + 4x - 1": "Applying the power rule to each term:\n\n• 5x³ → 15x²\n• -2x² → -4x\n• 4x → 4\n• -1 → 0\n\nAnswer: f'(x) = 15x² - 4x + 4",
+      "default": "Select a specific problem to see the step-by-step solution."
     },
     quiz: [
       { q: "What does the derivative represent geometrically?", a: "The slope of the tangent line at a point" },
-      { q: "Using the power rule, what is the derivative of x⁷?", a: "7x⁶" },
+      { q: "What is the derivative of x⁷?", a: "7x⁶" },
       { q: "What is the derivative of a constant?", a: "Zero" }
     ]
   }
@@ -68,24 +72,7 @@ const getAIResponse = (type, text) => {
     return responses.solve[key] || responses.solve.default
   }
   if (type === 'quiz') return responses.quiz
-  return "Select some text and I'll explain it."
-}
-
-function KapulLogo() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 100 100" fill="none">
-      <ellipse cx="50" cy="52" rx="38" ry="35" fill="#D4A574"/>
-      <ellipse cx="22" cy="28" rx="14" ry="16" fill="#D4A574"/>
-      <ellipse cx="22" cy="28" rx="10" ry="12" fill="#FFB6C1"/>
-      <ellipse cx="78" cy="28" rx="14" ry="16" fill="#D4A574"/>
-      <ellipse cx="78" cy="28" rx="10" ry="12" fill="#FFB6C1"/>
-      <circle cx="35" cy="50" r="12" fill="#1a1a2e"/>
-      <circle cx="65" cy="50" r="12" fill="#1a1a2e"/>
-      <circle cx="38" cy="47" r="4" fill="#fff"/>
-      <circle cx="68" cy="47" r="4" fill="#fff"/>
-      <ellipse cx="50" cy="62" rx="6" ry="5" fill="#8B4513"/>
-    </svg>
-  )
+  return "Select text to get an explanation."
 }
 
 export default function App() {
@@ -111,7 +98,7 @@ export default function App() {
 
   const handleAI = async (mode) => {
     setIsLoading(true)
-    await new Promise(r => setTimeout(r, 600))
+    await new Promise(r => setTimeout(r, 500))
     setAIResponse(getAIResponse(mode, selectedText))
     setIsLoading(false)
   }
@@ -126,27 +113,60 @@ export default function App() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:wght@400;600&display=swap');
+        
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body, #root { height: 100%; width: 100%; }
-        body { background: #0a0a0f; }
-        ::selection { background: rgba(251,191,36,0.4); }
-        @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+        html, body, #root { height: 100%; }
+        
+        :root {
+          --bg: #ffffff;
+          --bg-secondary: #f9fafb;
+          --bg-tertiary: #f3f4f6;
+          --border: #e5e7eb;
+          --text: #1f2937;
+          --text-secondary: #6b7280;
+          --text-tertiary: #9ca3af;
+          --accent: #d97706;
+          --accent-bg: #fffbeb;
+          --accent-border: #fde68a;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+          :root {
+            --bg: #1a1a1a;
+            --bg-secondary: #222222;
+            --bg-tertiary: #2a2a2a;
+            --border: #333333;
+            --text: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-tertiary: #6b7280;
+            --accent: #f59e0b;
+            --accent-bg: #292524;
+            --accent-border: #78350f;
+          }
+        }
+        
+        body {
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+          background: var(--bg);
+          color: var(--text);
+          line-height: 1.6;
+        }
         
         .app {
           min-height: 100vh;
-          background: #0a0a0f;
-          color: #e4e4e7;
-          font-family: 'DM Sans', sans-serif;
+          display: flex;
+          flex-direction: column;
         }
         
+        /* Header - Claude style */
         .header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 10px 12px;
-          background: rgba(10,10,15,0.95);
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          padding: 12px 16px;
+          border-bottom: 1px solid var(--border);
+          background: var(--bg);
           position: sticky;
           top: 0;
           z-index: 100;
@@ -155,113 +175,145 @@ export default function App() {
         .logo {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
+          font-weight: 600;
+          font-size: 15px;
+          color: var(--text);
         }
         
-        .logo-text {
-          font-size: 16px;
-          font-weight: 700;
-          background: linear-gradient(135deg, #D4A574, #FBBF24);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+        .logo-icon {
+          width: 24px;
+          height: 24px;
+          background: linear-gradient(135deg, #d97706, #b45309);
+          border-radius: 6px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 12px;
         }
         
         .nav {
           display: flex;
-          gap: 2px;
-          background: rgba(255,255,255,0.03);
-          padding: 3px;
-          border-radius: 8px;
+          gap: 4px;
         }
         
         .nav-btn {
-          padding: 8px 12px;
-          background: none;
+          padding: 8px 16px;
+          background: transparent;
           border: none;
           border-radius: 6px;
-          color: #71717a;
-          font-size: 16px;
+          color: var(--text-secondary);
+          font-size: 14px;
+          font-weight: 500;
           cursor: pointer;
+          transition: all 0.15s;
+        }
+        
+        .nav-btn:hover {
+          background: var(--bg-tertiary);
+          color: var(--text);
         }
         
         .nav-btn.active {
-          background: rgba(251,191,36,0.15);
-          color: #FBBF24;
+          background: var(--bg-tertiary);
+          color: var(--text);
         }
         
-        .streak {
-          padding: 4px 10px;
-          background: rgba(251,191,36,0.1);
-          border-radius: 12px;
-          font-size: 12px;
-          color: #FBBF24;
-        }
-        
+        /* Main content */
         .main {
-          padding: 12px;
+          flex: 1;
+          max-width: 800px;
+          width: 100%;
+          margin: 0 auto;
+          padding: 24px 16px;
         }
         
-        .panel {
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 12px;
-          padding: 16px;
-          margin-bottom: 12px;
+        /* Reader */
+        .doc-header {
+          margin-bottom: 32px;
+          padding-bottom: 24px;
+          border-bottom: 1px solid var(--border);
         }
         
-        .title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #fff;
+        .doc-title {
+          font-family: 'Source Serif 4', Georgia, serif;
+          font-size: 28px;
+          font-weight: 600;
+          color: var(--text);
           margin-bottom: 4px;
         }
         
-        .subtitle {
-          font-size: 13px;
-          color: #71717a;
-          margin-bottom: 12px;
+        .doc-subtitle {
+          font-size: 14px;
+          color: var(--text-secondary);
+          margin-bottom: 16px;
+        }
+        
+        .progress-row {
+          display: flex;
+          align-items: center;
+          gap: 12px;
         }
         
         .progress-bar {
-          height: 3px;
-          background: rgba(255,255,255,0.1);
+          flex: 1;
+          height: 4px;
+          background: var(--bg-tertiary);
           border-radius: 2px;
-          margin-bottom: 6px;
+          overflow: hidden;
         }
         
         .progress-fill {
           height: 100%;
           width: 35%;
-          background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+          background: var(--accent);
           border-radius: 2px;
         }
         
         .progress-text {
-          font-size: 11px;
-          color: #52525b;
+          font-size: 12px;
+          color: var(--text-tertiary);
+          white-space: nowrap;
         }
         
         .section {
-          margin-top: 20px;
+          margin-bottom: 32px;
         }
         
-        .section-title {
-          font-size: 15px;
+        .section-heading {
+          font-family: 'Source Serif 4', Georgia, serif;
+          font-size: 20px;
           font-weight: 600;
-          color: #FBBF24;
-          margin-bottom: 10px;
+          color: var(--text);
+          margin-bottom: 16px;
         }
         
-        .para {
-          font-size: 14px;
-          line-height: 1.7;
-          color: #d4d4d8;
-          margin-bottom: 10px;
+        .paragraph {
+          font-size: 16px;
+          color: var(--text);
+          margin-bottom: 16px;
+          line-height: 1.75;
         }
         
+        /* AI Panel */
         .ai-panel {
-          background: rgba(251,191,36,0.03);
-          border-color: rgba(251,191,36,0.2);
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: var(--bg);
+          border-top: 1px solid var(--border);
+          padding: 16px;
+          transform: translateY(100%);
+          transition: transform 0.25s ease;
+          max-height: 60vh;
+          overflow-y: auto;
+          z-index: 200;
+        }
+        
+        .ai-panel.open {
+          transform: translateY(0);
         }
         
         .ai-header {
@@ -272,472 +324,602 @@ export default function App() {
         }
         
         .ai-title {
-          font-size: 15px;
+          font-size: 14px;
           font-weight: 600;
-          color: #FBBF24;
+          color: var(--accent);
         }
         
         .close-btn {
           background: none;
           border: none;
-          color: #71717a;
           font-size: 20px;
+          color: var(--text-tertiary);
           cursor: pointer;
+          padding: 4px;
         }
         
         .selected-box {
-          background: rgba(0,0,0,0.3);
-          border-left: 3px solid #FBBF24;
-          padding: 8px 10px;
-          border-radius: 6px;
+          background: var(--accent-bg);
+          border: 1px solid var(--accent-border);
+          border-radius: 8px;
+          padding: 12px;
           margin-bottom: 12px;
         }
         
         .selected-label {
-          font-size: 10px;
-          color: #71717a;
+          font-size: 11px;
+          font-weight: 500;
+          color: var(--accent);
           text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 4px;
         }
         
         .selected-text {
-          font-size: 13px;
-          color: #a1a1aa;
-          font-style: italic;
+          font-size: 14px;
+          color: var(--text);
         }
         
-        .ai-btns {
+        .ai-actions {
           display: flex;
-          gap: 6px;
-          margin-bottom: 12px;
+          gap: 8px;
+          margin-bottom: 16px;
         }
         
         .ai-btn {
           flex: 1;
-          padding: 10px;
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.1);
+          padding: 10px 12px;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border);
           border-radius: 8px;
-          color: #a1a1aa;
           font-size: 13px;
+          font-weight: 500;
+          color: var(--text);
           cursor: pointer;
+          transition: all 0.15s;
         }
         
-        .ai-btn:active {
-          background: rgba(251,191,36,0.15);
-          color: #FBBF24;
+        .ai-btn:hover {
+          background: var(--bg-tertiary);
+          border-color: var(--text-tertiary);
         }
         
-        .response {
-          font-size: 13px;
-          line-height: 1.6;
-          color: #d4d4d8;
+        .ai-response {
+          font-size: 15px;
+          line-height: 1.7;
+          color: var(--text);
         }
         
         .loading {
-          text-align: center;
-          padding: 20px;
-          color: #FBBF24;
-          animation: pulse 1s infinite;
+          color: var(--text-tertiary);
+          font-size: 14px;
         }
         
-        .hint {
-          text-align: center;
-          color: #71717a;
+        /* Floating hint */
+        .hint-bar {
+          position: fixed;
+          bottom: 16px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          gap: 8px;
+          align-items: center;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border);
+          padding: 10px 16px;
+          border-radius: 24px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          z-index: 150;
+        }
+        
+        .hint-text {
           font-size: 13px;
-          margin-bottom: 16px;
+          color: var(--text-secondary);
         }
         
         .quiz-btn {
-          width: 100%;
-          padding: 14px;
-          background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+          padding: 8px 16px;
+          background: var(--accent);
           border: none;
-          border-radius: 10px;
-          color: #fff;
-          font-size: 14px;
-          font-weight: 600;
+          border-radius: 20px;
+          color: white;
+          font-size: 13px;
+          font-weight: 500;
           cursor: pointer;
         }
         
+        /* Quiz overlay */
         .quiz-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(10,10,15,0.98);
+          background: rgba(0,0,0,0.5);
           display: flex;
           align-items: center;
           justify-content: center;
           padding: 16px;
-          z-index: 200;
+          z-index: 300;
         }
         
         .quiz-card {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 16px;
-          padding: 20px;
+          background: var(--bg);
+          border-radius: 12px;
+          padding: 24px;
           width: 100%;
-          max-width: 360px;
+          max-width: 400px;
           position: relative;
         }
         
         .quiz-header {
           display: flex;
           justify-content: space-between;
-          font-size: 12px;
-          color: #71717a;
-          margin-bottom: 16px;
+          font-size: 13px;
+          color: var(--text-secondary);
+          margin-bottom: 20px;
         }
         
-        .quiz-q {
-          font-size: 17px;
-          color: #fff;
-          margin-bottom: 20px;
+        .quiz-progress {
+          color: var(--accent);
+          font-weight: 600;
+        }
+        
+        .quiz-question {
+          font-family: 'Source Serif 4', Georgia, serif;
+          font-size: 20px;
+          color: var(--text);
+          margin-bottom: 24px;
           line-height: 1.5;
         }
         
-        .quiz-a {
-          background: rgba(16,185,129,0.1);
-          border: 1px solid rgba(16,185,129,0.2);
-          padding: 12px;
+        .quiz-answer {
+          background: #ecfdf5;
+          border: 1px solid #a7f3d0;
           border-radius: 8px;
+          padding: 16px;
           margin-bottom: 16px;
-          color: #d4d4d8;
+          color: #065f46;
         }
         
-        .reveal-btn, .next-btn {
+        @media (prefers-color-scheme: dark) {
+          .quiz-answer {
+            background: #064e3b;
+            border-color: #065f46;
+            color: #d1fae5;
+          }
+        }
+        
+        .answer-label {
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 4px;
+          opacity: 0.7;
+        }
+        
+        .primary-btn {
           width: 100%;
           padding: 12px;
+          background: var(--accent);
           border: none;
           border-radius: 8px;
+          color: white;
           font-size: 14px;
           font-weight: 500;
           cursor: pointer;
         }
         
-        .reveal-btn {
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.1);
-          color: #fff;
-        }
-        
-        .next-btn {
-          background: linear-gradient(135deg, #3B82F6, #8B5CF6);
-          color: #fff;
+        .secondary-btn {
+          width: 100%;
+          padding: 12px;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          color: var(--text);
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
         }
         
         .close-quiz {
           position: absolute;
-          top: 12px;
-          right: 12px;
+          top: 16px;
+          right: 16px;
           background: none;
           border: none;
-          color: #71717a;
-          font-size: 22px;
+          font-size: 24px;
+          color: var(--text-tertiary);
           cursor: pointer;
         }
         
-        .stats {
+        /* Study tab */
+        .stats-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
-          gap: 10px;
-          margin-bottom: 16px;
+          gap: 12px;
+          margin-bottom: 24px;
         }
         
-        .stat {
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 10px;
-          padding: 14px;
+        .stat-card {
+          background: var(--bg-secondary);
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          padding: 20px;
           text-align: center;
         }
         
-        .stat-icon { font-size: 18px; }
-        .stat-val { font-size: 22px; font-weight: 700; color: #fff; }
-        .stat-label { font-size: 11px; color: #71717a; }
-        
-        .card-grid {
-          display: grid;
-          gap: 10px;
-          margin-bottom: 12px;
+        .stat-value {
+          font-size: 28px;
+          font-weight: 600;
+          color: var(--text);
         }
         
-        .card {
-          background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.1));
-          border: 1px solid rgba(139,92,246,0.2);
-          border-radius: 10px;
-          padding: 12px;
+        .stat-label {
           font-size: 13px;
-          color: #d4d4d8;
+          color: var(--text-secondary);
+          margin-top: 4px;
         }
         
-        .highlight {
+        .section-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--text);
+          margin-bottom: 16px;
+        }
+        
+        .card-list {
           display: flex;
-          gap: 10px;
-          padding: 10px;
-          background: rgba(251,191,36,0.05);
-          border-left: 3px solid #FBBF24;
-          border-radius: 6px;
+          flex-direction: column;
+          gap: 8px;
+          margin-bottom: 16px;
+        }
+        
+        .card-item {
+          background: var(--bg-secondary);
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          padding: 14px 16px;
+          font-size: 14px;
+          color: var(--text);
+        }
+        
+        .highlight-item {
+          background: var(--accent-bg);
+          border-left: 3px solid var(--accent);
+          padding: 12px 16px;
           margin-bottom: 8px;
+          border-radius: 0 8px 8px 0;
+          font-size: 14px;
+          color: var(--text);
         }
         
-        .highlight-dot {
-          width: 6px;
-          height: 6px;
-          background: #FBBF24;
-          border-radius: 50%;
-          margin-top: 6px;
-        }
-        
-        .highlight-text {
-          font-size: 13px;
-          color: #a1a1aa;
-          line-height: 1.5;
-        }
-        
+        /* Library tab */
         .lib-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 16px;
+          margin-bottom: 20px;
         }
         
         .lib-title {
-          font-size: 18px;
-          font-weight: 700;
+          font-family: 'Source Serif 4', Georgia, serif;
+          font-size: 24px;
+          font-weight: 600;
         }
         
         .add-btn {
-          padding: 8px 14px;
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.1);
+          padding: 8px 16px;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border);
           border-radius: 8px;
-          color: #fff;
-          font-size: 13px;
+          font-size: 14px;
+          color: var(--text);
           cursor: pointer;
         }
         
-        .book {
+        .book-list {
           display: flex;
+          flex-direction: column;
           gap: 12px;
-          padding: 12px;
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 10px;
-          margin-bottom: 10px;
+        }
+        
+        .book-item {
+          display: flex;
+          gap: 16px;
+          padding: 16px;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border);
+          border-radius: 12px;
           cursor: pointer;
+          transition: all 0.15s;
+        }
+        
+        .book-item:hover {
+          border-color: var(--text-tertiary);
         }
         
         .book-cover {
-          width: 45px;
-          height: 60px;
+          width: 48px;
+          height: 64px;
           border-radius: 6px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 18px;
-          font-weight: 700;
-          color: rgba(255,255,255,0.9);
+          font-family: 'Source Serif 4', Georgia, serif;
+          font-size: 20px;
+          font-weight: 600;
+          color: white;
+          flex-shrink: 0;
         }
         
-        .book-info { flex: 1; }
-        .book-name { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 2px; }
-        .book-author { font-size: 12px; color: #71717a; margin-bottom: 8px; }
-        .book-prog { height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-bottom: 4px; }
-        .book-prog-fill { height: 100%; background: linear-gradient(90deg, #3B82F6, #8B5CF6); border-radius: 2px; }
-        .book-prog-text { font-size: 10px; color: #52525b; }
+        .book-info {
+          flex: 1;
+          min-width: 0;
+        }
         
-        .action-btn {
-          padding: 10px 16px;
-          background: linear-gradient(135deg, #3B82F6, #8B5CF6);
-          border: none;
-          border-radius: 8px;
-          color: #fff;
+        .book-title {
+          font-size: 15px;
+          font-weight: 500;
+          color: var(--text);
+          margin-bottom: 2px;
+        }
+        
+        .book-author {
           font-size: 13px;
-          font-weight: 600;
-          cursor: pointer;
+          color: var(--text-secondary);
+          margin-bottom: 8px;
+        }
+        
+        .book-progress {
+          height: 4px;
+          background: var(--bg-tertiary);
+          border-radius: 2px;
+          overflow: hidden;
+        }
+        
+        .book-progress-fill {
+          height: 100%;
+          background: var(--accent);
+          border-radius: 2px;
+        }
+        
+        /* Desktop styles */
+        @media (min-width: 768px) {
+          .header {
+            padding: 16px 24px;
+          }
+          
+          .nav-btn {
+            padding: 8px 20px;
+          }
+          
+          .main {
+            padding: 40px 24px;
+          }
+          
+          .doc-title {
+            font-size: 36px;
+          }
+          
+          .ai-panel {
+            position: fixed;
+            bottom: auto;
+            top: 80px;
+            left: auto;
+            right: 24px;
+            width: 380px;
+            max-height: calc(100vh - 120px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+            transform: translateX(calc(100% + 24px));
+          }
+          
+          .ai-panel.open {
+            transform: translateX(0);
+          }
+          
+          .hint-bar {
+            bottom: 24px;
+          }
+          
+          .stats-grid {
+            grid-template-columns: repeat(4, 1fr);
+          }
         }
       `}</style>
       
       <div className="app">
         <header className="header">
           <div className="logo">
-            <KapulLogo />
-            <span className="logo-text">Kapul</span>
+            <div className="logo-icon">K</div>
+            <span>Kapul Reader</span>
           </div>
           <nav className="nav">
-            {['reader', 'study', 'library'].map(tab => (
-              <button
-                key={tab}
-                className={`nav-btn ${activeTab === tab ? 'active' : ''}`}
-                onClick={() => { setActiveTab(tab); setQuizActive(false) }}
-              >
-                {tab === 'reader' ? '📖' : tab === 'study' ? '🧠' : '📚'}
-              </button>
-            ))}
+            <button 
+              className={`nav-btn ${activeTab === 'reader' ? 'active' : ''}`}
+              onClick={() => setActiveTab('reader')}
+            >
+              Read
+            </button>
+            <button 
+              className={`nav-btn ${activeTab === 'study' ? 'active' : ''}`}
+              onClick={() => setActiveTab('study')}
+            >
+              Study
+            </button>
+            <button 
+              className={`nav-btn ${activeTab === 'library' ? 'active' : ''}`}
+              onClick={() => setActiveTab('library')}
+            >
+              Library
+            </button>
           </nav>
-          <div className="streak">🔥 5</div>
         </header>
 
         <main className="main">
           {activeTab === 'reader' && (
-            <>
-              <div className="panel" onMouseUp={handleSelect} onTouchEnd={handleSelect}>
-                <div className="title">{sampleContent.title}</div>
-                <div className="subtitle">{sampleContent.chapter}</div>
-                <div className="progress-bar"><div className="progress-fill" /></div>
-                <div className="progress-text">35% complete</div>
-                
-                {sampleContent.sections.map(s => (
-                  <div key={s.id} className="section">
-                    <div className="section-title">{s.heading}</div>
-                    {s.content.split('\n\n').map((p, i) => (
-                      <p key={i} className="para">{p}</p>
-                    ))}
+            <div onMouseUp={handleSelect} onTouchEnd={handleSelect}>
+              <div className="doc-header">
+                <h1 className="doc-title">{sampleContent.title}</h1>
+                <p className="doc-subtitle">{sampleContent.chapter}</p>
+                <div className="progress-row">
+                  <div className="progress-bar">
+                    <div className="progress-fill" />
                   </div>
-                ))}
-              </div>
-
-              <div className={`panel ${showAI ? 'ai-panel' : ''}`}>
-                {showAI ? (
-                  <>
-                    <div className="ai-header">
-                      <span className="ai-title">✦ Kapul AI</span>
-                      <button className="close-btn" onClick={() => setShowAI(false)}>×</button>
-                    </div>
-                    
-                    <div className="selected-box">
-                      <div className="selected-label">Selected:</div>
-                      <div className="selected-text">"{selectedText.slice(0, 60)}..."</div>
-                    </div>
-                    
-                    <div className="ai-btns">
-                      <button className="ai-btn" onClick={() => handleAI('explain')}>💡 Explain</button>
-                      <button className="ai-btn" onClick={() => handleAI('solve')}>🧮 Solve</button>
-                      <button className="ai-btn" onClick={() => setHighlights([...highlights, selectedText])}>🖍️ Save</button>
-                    </div>
-                    
-                    {isLoading ? (
-                      <div className="loading">● ● ●</div>
-                    ) : aiResponse ? (
-                      <div className="response">{aiResponse}</div>
-                    ) : (
-                      <div className="hint">Tap a button above</div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <div className="hint">✦ Select text to get explanations</div>
-                    <button className="quiz-btn" onClick={startQuiz}>📝 Quiz me</button>
-                  </>
-                )}
-              </div>
-            </>
-          )}
-
-          {quizActive && (
-            <div className="quiz-overlay">
-              <div className="quiz-card">
-                <div className="quiz-header">
-                  <span>Quiz</span>
-                  <span style={{color: '#FBBF24'}}>{quizIndex + 1}/{quizQuestions.length}</span>
+                  <span className="progress-text">35%</span>
                 </div>
-                <div className="quiz-q">{quizQuestions[quizIndex]?.q}</div>
-                {showAnswer ? (
-                  <>
-                    <div className="quiz-a">{quizQuestions[quizIndex]?.a}</div>
-                    <button className="next-btn" onClick={() => {
-                      if (quizIndex < quizQuestions.length - 1) {
-                        setQuizIndex(quizIndex + 1)
-                        setShowAnswer(false)
-                      } else {
-                        setQuizActive(false)
-                      }
-                    }}>
-                      {quizIndex < quizQuestions.length - 1 ? 'Next →' : 'Done ✓'}
-                    </button>
-                  </>
-                ) : (
-                  <button className="reveal-btn" onClick={() => setShowAnswer(true)}>Show Answer</button>
-                )}
-                <button className="close-quiz" onClick={() => setQuizActive(false)}>×</button>
               </div>
+              
+              {sampleContent.sections.map(section => (
+                <div key={section.id} className="section">
+                  <h2 className="section-heading">{section.heading}</h2>
+                  {section.content.split('\n\n').map((para, i) => (
+                    <p key={i} className="paragraph">{para}</p>
+                  ))}
+                </div>
+              ))}
             </div>
           )}
 
           {activeTab === 'study' && (
             <>
-              <div className="stats">
-                <div className="stat">
-                  <div className="stat-icon">📖</div>
-                  <div className="stat-val">3</div>
-                  <div className="stat-label">Pages</div>
+              <div className="stats-grid">
+                <div className="stat-card">
+                  <div className="stat-value">3</div>
+                  <div className="stat-label">Pages read</div>
                 </div>
-                <div className="stat">
-                  <div className="stat-icon">✓</div>
-                  <div className="stat-val">7</div>
-                  <div className="stat-label">Solved</div>
+                <div className="stat-card">
+                  <div className="stat-value">7</div>
+                  <div className="stat-label">Problems</div>
                 </div>
-                <div className="stat">
-                  <div className="stat-icon">🃏</div>
-                  <div className="stat-val">12</div>
-                  <div className="stat-label">Cards</div>
+                <div className="stat-card">
+                  <div className="stat-value">12</div>
+                  <div className="stat-label">Flashcards</div>
                 </div>
-                <div className="stat">
-                  <div className="stat-icon">📈</div>
-                  <div className="stat-val">73%</div>
+                <div className="stat-card">
+                  <div className="stat-value">73%</div>
                   <div className="stat-label">Score</div>
                 </div>
               </div>
 
-              <div className="panel">
-                <div className="section-title">Flashcards</div>
-                <div className="card-grid">
-                  <div className="card">What is a derivative?</div>
-                  <div className="card">Power Rule formula</div>
-                </div>
-                <button className="action-btn">Review Cards →</button>
+              <div className="section-title">Flashcards</div>
+              <div className="card-list">
+                <div className="card-item">What is a derivative?</div>
+                <div className="card-item">Power Rule formula</div>
+                <div className="card-item">Derivative of a constant</div>
               </div>
 
-              <div className="panel">
-                <div className="section-title">Highlights</div>
-                {["The derivative measures rate of change", ...highlights].map((h, i) => (
-                  <div key={i} className="highlight">
-                    <div className="highlight-dot" />
-                    <div className="highlight-text">{h}</div>
-                  </div>
-                ))}
-              </div>
+              <div className="section-title">Highlights</div>
+              {["The derivative measures rate of change", "f'(x) = lim[h→0] (f(x+h) - f(x)) / h", ...highlights].map((h, i) => (
+                <div key={i} className="highlight-item">{h}</div>
+              ))}
             </>
           )}
 
           {activeTab === 'library' && (
             <>
               <div className="lib-header">
-                <div className="lib-title">Library</div>
-                <button className="add-btn">+ Add</button>
+                <h1 className="lib-title">Library</h1>
+                <button className="add-btn">+ Add book</button>
               </div>
               
-              {[
-                { title: "Introduction to Calculus", author: "Stewart", prog: 35, color: "#3B82F6" },
-                { title: "Organic Chemistry", author: "Klein", prog: 12, color: "#10B981" },
-                { title: "Physics Principles", author: "Halliday", prog: 67, color: "#F59E0B" },
-                { title: "Linear Algebra", author: "Strang", prog: 0, color: "#8B5CF6" },
-              ].map((b, i) => (
-                <div key={i} className="book" onClick={() => setActiveTab('reader')}>
-                  <div className="book-cover" style={{background: b.color}}>{b.title[0]}</div>
-                  <div className="book-info">
-                    <div className="book-name">{b.title}</div>
-                    <div className="book-author">{b.author}</div>
-                    <div className="book-prog">
-                      <div className="book-prog-fill" style={{width: `${b.prog}%`}} />
+              <div className="book-list">
+                {[
+                  { title: "Introduction to Calculus", author: "Stewart", progress: 35, color: "#3b82f6" },
+                  { title: "Organic Chemistry", author: "Klein", progress: 12, color: "#10b981" },
+                  { title: "Physics Principles", author: "Halliday", progress: 67, color: "#f59e0b" },
+                  { title: "Linear Algebra", author: "Strang", progress: 0, color: "#8b5cf6" },
+                ].map((book, i) => (
+                  <div key={i} className="book-item" onClick={() => setActiveTab('reader')}>
+                    <div className="book-cover" style={{background: book.color}}>
+                      {book.title[0]}
                     </div>
-                    <div className="book-prog-text">{b.prog}%</div>
+                    <div className="book-info">
+                      <div className="book-title">{book.title}</div>
+                      <div className="book-author">{book.author}</div>
+                      <div className="book-progress">
+                        <div className="book-progress-fill" style={{width: `${book.progress}%`}} />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </>
           )}
         </main>
+
+        {/* Floating hint bar */}
+        {activeTab === 'reader' && !showAI && (
+          <div className="hint-bar">
+            <span className="hint-text">Select text to explain</span>
+            <button className="quiz-btn" onClick={startQuiz}>Quiz me</button>
+          </div>
+        )}
+
+        {/* AI Panel */}
+        <div className={`ai-panel ${showAI ? 'open' : ''}`}>
+          <div className="ai-header">
+            <span className="ai-title">Kapul AI</span>
+            <button className="close-btn" onClick={() => setShowAI(false)}>×</button>
+          </div>
+          
+          {selectedText && (
+            <div className="selected-box">
+              <div className="selected-label">Selected text</div>
+              <div className="selected-text">{selectedText.slice(0, 100)}{selectedText.length > 100 ? '...' : ''}</div>
+            </div>
+          )}
+          
+          <div className="ai-actions">
+            <button className="ai-btn" onClick={() => handleAI('explain')}>Explain</button>
+            <button className="ai-btn" onClick={() => handleAI('solve')}>Solve</button>
+            <button className="ai-btn" onClick={() => setHighlights([...highlights, selectedText])}>Save</button>
+          </div>
+          
+          {isLoading ? (
+            <div className="loading">Thinking...</div>
+          ) : aiResponse && (
+            <div className="ai-response">{aiResponse}</div>
+          )}
+        </div>
+
+        {/* Quiz Modal */}
+        {quizActive && (
+          <div className="quiz-overlay" onClick={() => setQuizActive(false)}>
+            <div className="quiz-card" onClick={e => e.stopPropagation()}>
+              <div className="quiz-header">
+                <span>Quiz</span>
+                <span className="quiz-progress">{quizIndex + 1} of {quizQuestions.length}</span>
+              </div>
+              <div className="quiz-question">{quizQuestions[quizIndex]?.q}</div>
+              
+              {showAnswer ? (
+                <>
+                  <div className="quiz-answer">
+                    <div className="answer-label">Answer</div>
+                    {quizQuestions[quizIndex]?.a}
+                  </div>
+                  <button className="primary-btn" onClick={() => {
+                    if (quizIndex < quizQuestions.length - 1) {
+                      setQuizIndex(quizIndex + 1)
+                      setShowAnswer(false)
+                    } else {
+                      setQuizActive(false)
+                    }
+                  }}>
+                    {quizIndex < quizQuestions.length - 1 ? 'Next question' : 'Done'}
+                  </button>
+                </>
+              ) : (
+                <button className="secondary-btn" onClick={() => setShowAnswer(true)}>
+                  Show answer
+                </button>
+              )}
+              
+              <button className="close-quiz" onClick={() => setQuizActive(false)}>×</button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   )
