@@ -44,14 +44,14 @@ Problem 3: If y = (2x + 1) / (x - 1), find dy/dx`
   ]
 }
 
-// Sample books with real cover images
+// Sample books with color placeholders (no external images - works on all devices)
 const initialBooks = [
   { 
     id: 1,
     title: "Calculus", 
     author: "James Stewart", 
     progress: 35, 
-    cover: "https://covers.openlibrary.org/b/id/8091016-M.jpg",
+    color: "#3B82F6",
     format: "pdf"
   },
   { 
@@ -59,7 +59,7 @@ const initialBooks = [
     title: "Organic Chemistry", 
     author: "David Klein", 
     progress: 12, 
-    cover: "https://covers.openlibrary.org/b/id/8504931-M.jpg",
+    color: "#10B981",
     format: "pdf"
   },
   { 
@@ -67,7 +67,7 @@ const initialBooks = [
     title: "Physics", 
     author: "Halliday & Resnick", 
     progress: 67, 
-    cover: "https://covers.openlibrary.org/b/id/12648655-M.jpg",
+    color: "#F59E0B",
     format: "epub"
   },
   { 
@@ -75,8 +75,24 @@ const initialBooks = [
     title: "Linear Algebra", 
     author: "Gilbert Strang", 
     progress: 8, 
-    cover: "https://covers.openlibrary.org/b/id/6946044-M.jpg",
+    color: "#8B5CF6",
     format: "pdf"
+  },
+  { 
+    id: 5,
+    title: "Biology", 
+    author: "Campbell", 
+    progress: 22, 
+    color: "#EC4899",
+    format: "pdf"
+  },
+  { 
+    id: 6,
+    title: "Chemistry", 
+    author: "Zumdahl", 
+    progress: 0, 
+    color: "#06B6D4",
+    format: "epub"
   }
 ]
 
@@ -211,12 +227,16 @@ export default function App() {
     }
 
     // Create book entry
+    // Random colors for book covers
+    const colors = ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#EF4444', '#84CC16']
+    const randomColor = colors[Math.floor(Math.random() * colors.length)]
+
     const newBook = {
       id: Date.now(),
       title: file.name.replace(/\.(pdf|epub)$/i, ''),
       author: 'Unknown Author',
       progress: 0,
-      cover: null, // Will use placeholder
+      color: randomColor,
       format: isPdf ? 'pdf' : 'epub',
       fileSize: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
       dateAdded: new Date().toLocaleDateString()
@@ -905,55 +925,35 @@ export default function App() {
           background: var(--bg-tertiary);
         }
         
-        .book-cover-img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        
-        .book-cover-placeholder {
+        .book-cover-color {
           width: 100%;
           height: 100%;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
           padding: 12px;
+          border-radius: 4px;
         }
         
-        .book-cover-placeholder-title {
-          font-size: 11px;
-          font-weight: 600;
-          color: var(--text);
+        .book-cover-initial {
+          font-size: 32px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.9);
+          font-family: 'Source Serif 4', Georgia, serif;
+        }
+        
+        .book-cover-title {
+          font-size: 10px;
+          font-weight: 500;
+          color: rgba(255,255,255,0.8);
           text-align: center;
           margin-top: 8px;
           line-height: 1.3;
           display: -webkit-box;
-          -webkit-line-clamp: 3;
+          -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
-        }
-        
-        .book-format-badge {
-          position: absolute;
-          top: 6px;
-          right: 6px;
-          padding: 2px 6px;
-          border-radius: 4px;
-          font-size: 9px;
-          font-weight: 600;
-          text-transform: uppercase;
-        }
-        
-        .book-format-badge.pdf {
-          background: #E53935;
-          color: white;
-        }
-        
-        .book-format-badge.epub {
-          background: #43A047;
-          color: white;
         }
         
         .book-progress-overlay {
@@ -1029,17 +1029,7 @@ export default function App() {
           border-color: var(--text-tertiary);
         }
         
-        .book-list-cover {
-          width: 50px;
-          height: 70px;
-          border-radius: 4px;
-          object-fit: cover;
-          flex-shrink: 0;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-          background: var(--bg-tertiary);
-        }
-        
-        .book-list-cover-placeholder {
+        .book-list-cover-color {
           width: 50px;
           height: 70px;
           border-radius: 4px;
@@ -1047,7 +1037,11 @@ export default function App() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+          box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+          font-size: 20px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.9);
+          font-family: 'Source Serif 4', Georgia, serif;
         }
         
         .book-list-info {
@@ -1398,20 +1392,12 @@ export default function App() {
                   {books.map((book) => (
                     <div key={book.id} className="book-grid-item" onClick={() => setActiveTab('reader')}>
                       <div className="book-cover-container">
-                        {book.cover ? (
-                          <img 
-                            src={book.cover} 
-                            alt={book.title}
-                            className="book-cover-img"
-                            onError={(e) => {
-                              e.target.style.display = 'none'
-                              e.target.nextSibling.style.display = 'flex'
-                            }}
-                          />
-                        ) : null}
-                        <div className="book-cover-placeholder" style={{display: book.cover ? 'none' : 'flex'}}>
-                          {book.format === 'pdf' ? <PdfIcon /> : <EpubIcon />}
-                          <div className="book-cover-placeholder-title">{book.title}</div>
+                        <div 
+                          className="book-cover-color" 
+                          style={{background: book.color || '#6B7280'}}
+                        >
+                          <span className="book-cover-initial">{book.title.charAt(0)}</span>
+                          <span className="book-cover-title">{book.title}</span>
                         </div>
                         
                         {book.progress > 0 && (
@@ -1435,19 +1421,11 @@ export default function App() {
                 <div className="book-list">
                   {books.map((book) => (
                     <div key={book.id} className="book-list-item" onClick={() => setActiveTab('reader')}>
-                      {book.cover ? (
-                        <img 
-                          src={book.cover} 
-                          alt={book.title}
-                          className="book-list-cover"
-                          onError={(e) => {
-                            e.target.style.display = 'none'
-                            e.target.nextSibling.style.display = 'flex'
-                          }}
-                        />
-                      ) : null}
-                      <div className="book-list-cover-placeholder" style={{display: book.cover ? 'none' : 'flex'}}>
-                        {book.format === 'pdf' ? <PdfIcon /> : <EpubIcon />}
+                      <div 
+                        className="book-list-cover-color"
+                        style={{background: book.color || '#6B7280'}}
+                      >
+                        <span>{book.title.charAt(0)}</span>
                       </div>
                       <div className="book-list-info">
                         <div className="book-list-title">
