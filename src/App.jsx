@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react'
 
-// Sample textbook content for demo
 const sampleContent = {
   title: "Introduction to Calculus",
   chapter: "Chapter 3: Derivatives",
@@ -14,9 +13,7 @@ Consider a function f(x). The derivative, denoted f'(x) or df/dx, is defined as:
 
 f'(x) = lim[h→0] (f(x+h) - f(x)) / h
 
-This limit, when it exists, gives us the instantaneous rate of change of f at the point x. Geometrically, this represents the slope of the tangent line to the curve at that point.
-
-For example, if f(x) = x², then f'(x) = 2x. This tells us that the slope of the parabola y = x² at any point x is twice the x-coordinate.`
+This limit, when it exists, gives us the instantaneous rate of change of f at the point x. Geometrically, this represents the slope of the tangent line to the curve at that point.`
     },
     {
       id: 2,
@@ -31,1138 +28,512 @@ Sum Rule: (f + g)' = f' + g'
 
 Product Rule: (fg)' = f'g + fg'
 
-Quotient Rule: (f/g)' = (f'g - fg') / g²
-
-These rules can be combined to differentiate complex expressions. For instance, to find the derivative of h(x) = 3x⁴ + 2x² - 5x + 7:
-
-h'(x) = 12x³ + 4x - 5`
+Quotient Rule: (f/g)' = (f'g - fg') / g²`
     },
     {
       id: 3,
       heading: "3.3 Practice Problems",
-      content: `Apply the differentiation rules to solve the following:
+      content: `Apply the differentiation rules to solve:
 
 Problem 1: Find f'(x) if f(x) = 5x³ - 2x² + 4x - 1
 
 Problem 2: Differentiate g(x) = (x² + 1)(x - 3)
 
-Problem 3: If y = (2x + 1) / (x - 1), find dy/dx
-
-Problem 4: The position of a particle is given by s(t) = t³ - 6t² + 9t + 2. Find the velocity function v(t) and determine when the particle is at rest.`
+Problem 3: If y = (2x + 1) / (x - 1), find dy/dx`
     }
   ]
-};
+}
 
-// AI Response simulator
+const initialBooks = [
+  { id: 1, title: "Calculus", author: "James Stewart", progress: 35, color: "#DA7756", format: "pdf", lastRead: "2 hours ago" },
+  { id: 2, title: "Organic Chemistry", author: "David Klein", progress: 12, color: "#5A9A6E", format: "pdf", lastRead: "Yesterday" },
+  { id: 3, title: "Physics", author: "Halliday & Resnick", progress: 67, color: "#6B8ACE", format: "epub", lastRead: "3 days ago" },
+  { id: 4, title: "Linear Algebra", author: "Gilbert Strang", progress: 8, color: "#9B7AC7", format: "pdf", lastRead: "1 week ago" },
+  { id: 5, title: "Biology", author: "Campbell", progress: 22, color: "#C97A8B", format: "pdf", lastRead: "2 weeks ago" },
+  { id: 6, title: "Chemistry", author: "Zumdahl", progress: 0, color: "#5AADAD", format: "epub", lastRead: "New" }
+]
+
 const getAIResponse = (type, text) => {
   const responses = {
     explain: {
-      "derivative": "Think of a derivative as the 'speedometer' of a function. Just like a speedometer tells you how fast you're going at any instant, a derivative tells you how fast your function is changing at any point. If f(x) = x², the derivative 2x means: at x=3, the function is changing at a rate of 6 units per unit of x.",
-      "limit": "A limit describes what happens as we get infinitely close to something, without actually reaching it. Imagine walking halfway to a wall, then half of that, then half again... You never touch the wall, but you get arbitrarily close. That's the idea behind limits.",
-      "power rule": "The Power Rule is beautifully simple: bring the exponent down as a coefficient, then reduce the exponent by 1. So x⁵ becomes 5x⁴. It's like the exponent 'jumps down' and leaves behind one less of itself.",
-      "default": "This concept relates to how functions change. The key insight is understanding that calculus gives us tools to measure instantaneous change, not just average change over an interval. Would you like me to break this down further with a specific example?"
+      "derivative": "A derivative measures how fast something changes. Think of it like a speedometer — it tells you your speed at any exact moment, not your average speed over a trip.",
+      "limit": "A limit describes approaching a value without necessarily reaching it. Like walking halfway to a wall, then half of that remaining distance, forever getting closer but never touching.",
+      "power rule": "The Power Rule: multiply by the exponent, then subtract 1 from the exponent. So x⁵ becomes 5x⁴.",
+      "default": "This relates to measuring change. Select a specific term for a more detailed explanation."
     },
     solve: {
-      "5x³ - 2x² + 4x - 1": `Let's solve this step by step using the Power Rule:
-
-**Given:** f(x) = 5x³ - 2x² + 4x - 1
-
-**Step 1:** Apply the power rule to each term separately
-
-• d/dx(5x³) = 5 · 3x² = 15x²
-• d/dx(-2x²) = -2 · 2x = -4x  
-• d/dx(4x) = 4 · 1 = 4
-• d/dx(-1) = 0 (constant rule)
-
-**Step 2:** Combine the results
-
-f'(x) = 15x² - 4x + 4
-
-**Answer:** f'(x) = 15x² - 4x + 4`,
-      "default": `I'll solve this step by step:
-
-**Step 1:** Identify the rule(s) needed
-**Step 2:** Apply each rule carefully
-**Step 3:** Simplify the result
-
-Select the specific problem text for a detailed walkthrough.`
+      "5x³ - 2x² + 4x - 1": "Applying the power rule to each term:\n\n• 5x³ → 15x²\n• -2x² → -4x\n• 4x → 4\n• -1 → 0\n\nAnswer: f'(x) = 15x² - 4x + 4",
+      "default": "Select a specific problem to see the step-by-step solution."
     },
     quiz: [
       { q: "What does the derivative represent geometrically?", a: "The slope of the tangent line at a point" },
-      { q: "Using the power rule, what is the derivative of x⁷?", a: "7x⁶" },
-      { q: "What is the derivative of a constant?", a: "Zero" },
-      { q: "If f'(x) = 0 at a point, what does this indicate?", a: "A horizontal tangent (possible max/min)" }
+      { q: "What is the derivative of x⁷?", a: "7x⁶" },
+      { q: "What is the derivative of a constant?", a: "Zero" }
     ]
-  };
-
+  }
   if (type === 'explain') {
-    const key = Object.keys(responses.explain).find(k => text.toLowerCase().includes(k));
-    return responses.explain[key] || responses.explain.default;
+    const key = Object.keys(responses.explain).find(k => text.toLowerCase().includes(k))
+    return responses.explain[key] || responses.explain.default
   }
   if (type === 'solve') {
-    const key = Object.keys(responses.solve).find(k => text.includes(k));
-    return responses.solve[key] || responses.solve.default;
+    const key = Object.keys(responses.solve).find(k => text.includes(k))
+    return responses.solve[key] || responses.solve.default
   }
-  if (type === 'quiz') {
-    return responses.quiz;
-  }
-  return "I'm here to help you understand. Select some text and I'll explain it.";
-};
-
-// Kapul (Cuscus) SVG Logo Component
-const KapulLogo = () => (
-  <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Face */}
-    <ellipse cx="50" cy="52" rx="38" ry="35" fill="#D4A574"/>
-    <ellipse cx="50" cy="52" rx="38" ry="35" fill="url(#furGradient)"/>
-    
-    {/* Ears */}
-    <ellipse cx="22" cy="28" rx="14" ry="16" fill="#D4A574"/>
-    <ellipse cx="22" cy="28" rx="10" ry="12" fill="#FFB6C1"/>
-    <ellipse cx="78" cy="28" rx="14" ry="16" fill="#D4A574"/>
-    <ellipse cx="78" cy="28" rx="10" ry="12" fill="#FFB6C1"/>
-    
-    {/* Face markings - spotted pattern */}
-    <circle cx="30" cy="40" r="6" fill="#C49A6C" opacity="0.5"/>
-    <circle cx="70" cy="45" r="5" fill="#C49A6C" opacity="0.5"/>
-    <circle cx="65" cy="35" r="4" fill="#C49A6C" opacity="0.4"/>
-    
-    {/* Eyes - large and round like a cuscus */}
-    <circle cx="35" cy="50" r="12" fill="#1a1a2e"/>
-    <circle cx="65" cy="50" r="12" fill="#1a1a2e"/>
-    
-    {/* Eye shine */}
-    <circle cx="38" cy="47" r="4" fill="#fff"/>
-    <circle cx="68" cy="47" r="4" fill="#fff"/>
-    <circle cx="33" cy="53" r="2" fill="#fff" opacity="0.5"/>
-    <circle cx="63" cy="53" r="2" fill="#fff" opacity="0.5"/>
-    
-    {/* Nose */}
-    <ellipse cx="50" cy="62" rx="6" ry="5" fill="#8B4513"/>
-    <ellipse cx="50" cy="61" rx="3" ry="2" fill="#A0522D"/>
-    
-    {/* Mouth */}
-    <path d="M44 70 Q50 76 56 70" stroke="#8B4513" strokeWidth="2" fill="none" strokeLinecap="round"/>
-    
-    {/* Whisker dots */}
-    <circle cx="38" cy="65" r="1.5" fill="#8B4513"/>
-    <circle cx="32" cy="62" r="1.5" fill="#8B4513"/>
-    <circle cx="62" cy="65" r="1.5" fill="#8B4513"/>
-    <circle cx="68" cy="62" r="1.5" fill="#8B4513"/>
-    
-    {/* Gradient definition */}
-    <defs>
-      <radialGradient id="furGradient" cx="50%" cy="30%" r="70%">
-        <stop offset="0%" stopColor="#E8C89E"/>
-        <stop offset="100%" stopColor="#C49A6C"/>
-      </radialGradient>
-    </defs>
-  </svg>
-);
-
-// Kapul Reader App Component
-export default function KapulReaderApp() {
-  const [activeTab, setActiveTab] = useState('reader');
-  const [selectedText, setSelectedText] = useState('');
-  const [showAIPanel, setShowAIPanel] = useState(false);
-  const [aiResponse, setAIResponse] = useState('');
-  const [aiMode, setAIMode] = useState('explain');
-  const [isLoading, setIsLoading] = useState(false);
-  const [highlights, setHighlights] = useState([]);
-  const [flashcards, setFlashcards] = useState([]);
-  const [quizActive, setQuizActive] = useState(false);
-  const [quizQuestions, setQuizQuestions] = useState([]);
-  const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
-  const [showQuizAnswer, setShowQuizAnswer] = useState(false);
-  const [studyStats, setStudyStats] = useState({
-    pagesRead: 3,
-    problemsSolved: 7,
-    flashcardsReviewed: 12,
-    streakDays: 5,
-    comprehension: 73
-  });
-
-  // Handle text selection in reader
-  const handleTextSelect = () => {
-    const selection = window.getSelection();
-    const text = selection.toString().trim();
-    if (text.length > 3) {
-      setSelectedText(text);
-      setShowAIPanel(true);
-      setAiResponse('');
-    }
-  };
-
-  // AI action handlers
-  const handleAIAction = async (mode) => {
-    setAiMode(mode);
-    setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(r => setTimeout(r, 800 + Math.random() * 400));
-    
-    const response = getAIResponse(mode, selectedText);
-    setAiResponse(response);
-    setIsLoading(false);
-  };
-
-  // Add highlight
-  const addHighlight = () => {
-    if (selectedText && !highlights.includes(selectedText)) {
-      setHighlights([...highlights, selectedText]);
-    }
-  };
-
-  // Convert to flashcard
-  const addFlashcard = () => {
-    if (selectedText && aiResponse) {
-      setFlashcards([...flashcards, { front: selectedText, back: aiResponse }]);
-    }
-  };
-
-  // Start quiz
-  const startQuiz = () => {
-    const questions = getAIResponse('quiz', '');
-    setQuizQuestions(questions);
-    setCurrentQuizIndex(0);
-    setShowQuizAnswer(false);
-    setQuizActive(true);
-  };
-
-  return (
-    <div style={styles.container}>
-      {/* Background gradient */}
-      <div style={styles.bgGradient} />
-      
-      {/* Header */}
-      <header style={styles.header}>
-        <div style={styles.logo}>
-          <div style={styles.logoIcon}><KapulLogo /></div>
-          <span style={styles.logoText}>Kapul Reader</span>
-        </div>
-        <nav style={styles.nav}>
-          {['reader', 'study', 'library'].map(tab => (
-            <button
-              key={tab}
-              onClick={() => { setActiveTab(tab); setQuizActive(false); }}
-              style={{
-                ...styles.navButton,
-                ...(activeTab === tab ? styles.navButtonActive : {})
-              }}
-            >
-              {tab === 'reader' && '📖'}
-              {tab === 'study' && '🧠'}
-              {tab === 'library' && '📚'}
-              <span style={styles.navLabel}>{tab.charAt(0).toUpperCase() + tab.slice(1)}</span>
-            </button>
-          ))}
-        </nav>
-        <div style={styles.streak}>
-          🔥 {studyStats.streakDays} day streak
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main style={styles.main}>
-        {/* Reader Tab */}
-        {activeTab === 'reader' && (
-          <div style={styles.readerContainer}>
-            {/* Document Panel */}
-            <div 
-              style={styles.documentPanel}
-              onMouseUp={handleTextSelect}
-            >
-              <div style={styles.documentHeader}>
-                <h1 style={styles.bookTitle}>{sampleContent.title}</h1>
-                <p style={styles.chapterTitle}>{sampleContent.chapter}</p>
-                <div style={styles.progressBar}>
-                  <div style={{...styles.progressFill, width: '35%'}} />
-                </div>
-                <span style={styles.progressText}>Page 47 of 132 · 35% complete</span>
-              </div>
-              
-              <div style={styles.documentContent}>
-                {sampleContent.sections.map(section => (
-                  <div key={section.id} style={styles.section}>
-                    <h2 style={styles.sectionHeading}>{section.heading}</h2>
-                    <div style={styles.sectionContent}>
-                      {section.content.split('\n\n').map((para, i) => (
-                        <p key={i} style={styles.paragraph}>{para}</p>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Quiz Mode Overlay */}
-              {quizActive && (
-                <div style={styles.quizOverlay}>
-                  <div style={styles.quizCard}>
-                    <div style={styles.quizHeader}>
-                      <span>Quiz: Chapter 3</span>
-                      <span style={styles.quizProgress}>{currentQuizIndex + 1} / {quizQuestions.length}</span>
-                    </div>
-                    <div style={styles.quizQuestion}>
-                      {quizQuestions[currentQuizIndex]?.q}
-                    </div>
-                    {showQuizAnswer ? (
-                      <div style={styles.quizAnswer}>
-                        <span style={styles.answerLabel}>Answer:</span>
-                        {quizQuestions[currentQuizIndex]?.a}
-                      </div>
-                    ) : (
-                      <button 
-                        style={styles.revealButton}
-                        onClick={() => setShowQuizAnswer(true)}
-                      >
-                        Reveal Answer
-                      </button>
-                    )}
-                    {showQuizAnswer && (
-                      <div style={styles.quizActions}>
-                        <button 
-                          style={styles.quizActionBtn}
-                          onClick={() => {
-                            if (currentQuizIndex < quizQuestions.length - 1) {
-                              setCurrentQuizIndex(currentQuizIndex + 1);
-                              setShowQuizAnswer(false);
-                            } else {
-                              setQuizActive(false);
-                            }
-                          }}
-                        >
-                          {currentQuizIndex < quizQuestions.length - 1 ? 'Next Question →' : 'Finish Quiz ✓'}
-                        </button>
-                      </div>
-                    )}
-                    <button 
-                      style={styles.closeQuiz}
-                      onClick={() => setQuizActive(false)}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* AI Panel */}
-            <div style={{
-              ...styles.aiPanel,
-              ...(showAIPanel ? styles.aiPanelOpen : {})
-            }}>
-              {showAIPanel ? (
-                <>
-                  <div style={styles.aiHeader}>
-                    <span style={styles.aiTitle}>✦ Kapul AI</span>
-                    <button 
-                      style={styles.closeButton}
-                      onClick={() => setShowAIPanel(false)}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  
-                  {selectedText && (
-                    <div style={styles.selectedTextBox}>
-                      <span style={styles.selectedLabel}>Selected:</span>
-                      <p style={styles.selectedContent}>"{selectedText.slice(0, 100)}{selectedText.length > 100 ? '...' : ''}"</p>
-                    </div>
-                  )}
-
-                  <div style={styles.aiActions}>
-                    <button 
-                      style={{...styles.aiActionBtn, ...(aiMode === 'explain' ? styles.aiActionBtnActive : {})}}
-                      onClick={() => handleAIAction('explain')}
-                    >
-                      💡 Explain
-                    </button>
-                    <button 
-                      style={{...styles.aiActionBtn, ...(aiMode === 'solve' ? styles.aiActionBtnActive : {})}}
-                      onClick={() => handleAIAction('solve')}
-                    >
-                      🧮 Solve
-                    </button>
-                    <button 
-                      style={styles.aiActionBtn}
-                      onClick={addHighlight}
-                    >
-                      🖍️ Highlight
-                    </button>
-                  </div>
-
-                  <div style={styles.aiResponse}>
-                    {isLoading ? (
-                      <div style={styles.loadingDots}>
-                        <span style={styles.dot}>●</span>
-                        <span style={{...styles.dot, animationDelay: '0.2s'}}>●</span>
-                        <span style={{...styles.dot, animationDelay: '0.4s'}}>●</span>
-                      </div>
-                    ) : aiResponse ? (
-                      <>
-                        <div style={styles.responseContent}>
-                          {aiResponse.split('\n').map((line, i) => (
-                            <p key={i} style={line.startsWith('**') ? styles.boldLine : styles.responseLine}>
-                              {line.replace(/\*\*/g, '')}
-                            </p>
-                          ))}
-                        </div>
-                        <button 
-                          style={styles.flashcardBtn}
-                          onClick={addFlashcard}
-                        >
-                          + Add to Flashcards
-                        </button>
-                      </>
-                    ) : (
-                      <p style={styles.aiPlaceholder}>
-                        Choose an action above to get AI assistance with your selection.
-                      </p>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <div style={styles.aiCollapsed}>
-                  <p style={styles.aiHint}>
-                    <span style={styles.hintIcon}>✦</span>
-                    Select any text to get instant explanations
-                  </p>
-                  <button 
-                    style={styles.quizButton}
-                    onClick={startQuiz}
-                  >
-                    📝 Quiz me on this chapter
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Study Tab */}
-        {activeTab === 'study' && (
-          <div style={styles.studyContainer}>
-            <div style={styles.statsGrid}>
-              <div style={styles.statCard}>
-                <span style={styles.statIcon}>📖</span>
-                <span style={styles.statValue}>{studyStats.pagesRead}</span>
-                <span style={styles.statLabel}>Pages Today</span>
-              </div>
-              <div style={styles.statCard}>
-                <span style={styles.statIcon}>✓</span>
-                <span style={styles.statValue}>{studyStats.problemsSolved}</span>
-                <span style={styles.statLabel}>Problems Solved</span>
-              </div>
-              <div style={styles.statCard}>
-                <span style={styles.statIcon}>🃏</span>
-                <span style={styles.statValue}>{studyStats.flashcardsReviewed}</span>
-                <span style={styles.statLabel}>Cards Reviewed</span>
-              </div>
-              <div style={styles.statCard}>
-                <span style={styles.statIcon}>📈</span>
-                <span style={styles.statValue}>{studyStats.comprehension}%</span>
-                <span style={styles.statLabel}>Comprehension</span>
-              </div>
-            </div>
-
-            <div style={styles.studySection}>
-              <h2 style={styles.studySectionTitle}>Your Flashcards ({flashcards.length + 3})</h2>
-              <div style={styles.flashcardGrid}>
-                {[
-                  { front: "What is a derivative?", back: "The rate of change of a function" },
-                  { front: "Power Rule formula", back: "d/dx(xⁿ) = nxⁿ⁻¹" },
-                  { front: "Derivative of a constant", back: "Always equals zero" },
-                  ...flashcards
-                ].slice(0, 6).map((card, i) => (
-                  <div key={i} style={styles.flashcard}>
-                    <div style={styles.flashcardFront}>{card.front}</div>
-                  </div>
-                ))}
-              </div>
-              <button style={styles.reviewButton}>
-                Start Review Session →
-              </button>
-            </div>
-
-            <div style={styles.studySection}>
-              <h2 style={styles.studySectionTitle}>Highlights ({highlights.length + 2})</h2>
-              <div style={styles.highlightsList}>
-                {[
-                  "The derivative of a function measures the rate at which the function's value changes",
-                  "f'(x) = lim[h→0] (f(x+h) - f(x)) / h",
-                  ...highlights
-                ].map((h, i) => (
-                  <div key={i} style={styles.highlightItem}>
-                    <span style={styles.highlightMark} />
-                    <span style={styles.highlightText}>{h}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Library Tab */}
-        {activeTab === 'library' && (
-          <div style={styles.libraryContainer}>
-            <div style={styles.libraryHeader}>
-              <h2 style={styles.libraryTitle}>Your Library</h2>
-              <button style={styles.addBookBtn}>+ Add Book</button>
-            </div>
-            
-            <div style={styles.bookGrid}>
-              {[
-                { title: "Introduction to Calculus", author: "Stewart", progress: 35, color: "#3B82F6" },
-                { title: "Organic Chemistry", author: "Klein", progress: 12, color: "#10B981" },
-                { title: "Physics: Principles", author: "Halliday", progress: 67, color: "#F59E0B" },
-                { title: "Linear Algebra", author: "Strang", progress: 0, color: "#8B5CF6" },
-                { title: "Biology: Life", author: "Campbell", progress: 45, color: "#EC4899" },
-                { title: "Statistics", author: "Freedman", progress: 23, color: "#06B6D4" },
-              ].map((book, i) => (
-                <div 
-                  key={i} 
-                  style={styles.bookCard}
-                  onClick={() => setActiveTab('reader')}
-                >
-                  <div style={{...styles.bookCover, background: `linear-gradient(135deg, ${book.color}, ${book.color}dd)`}}>
-                    <span style={styles.bookInitial}>{book.title.charAt(0)}</span>
-                  </div>
-                  <div style={styles.bookInfo}>
-                    <h3 style={styles.bookName}>{book.title}</h3>
-                    <p style={styles.bookAuthor}>{book.author}</p>
-                    <div style={styles.bookProgress}>
-                      <div style={{...styles.bookProgressFill, width: `${book.progress}%`}} />
-                    </div>
-                    <span style={styles.bookProgressText}>{book.progress}% complete</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </main>
-
-      {/* Inline Styles Animation */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap');
-        
-        @keyframes pulse {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 1; }
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateX(20px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        
-        * {
-          box-sizing: border-box;
-        }
-        
-        ::selection {
-          background: rgba(251, 191, 36, 0.4);
-        }
-      `}</style>
-    </div>
-  );
+  if (type === 'quiz') return responses.quiz
+  return "Select text to get an explanation."
 }
 
-// Styles
-const styles = {
-  container: {
-    minHeight: '100vh',
-    background: '#0a0a0f',
-    color: '#e4e4e7',
-    fontFamily: "'DM Sans', -apple-system, sans-serif",
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  bgGradient: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'radial-gradient(ellipse at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%)',
-    pointerEvents: 'none',
-  },
-  header: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '16px 32px',
-    borderBottom: '1px solid rgba(255,255,255,0.06)',
-    background: 'rgba(10, 10, 15, 0.8)',
-    backdropFilter: 'blur(20px)',
-    position: 'sticky',
-    top: 0,
-    zIndex: 100,
-  },
-  logo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-  },
-  logoIcon: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoText: {
-    fontSize: '22px',
-    fontWeight: '700',
-    fontFamily: "'Fraunces', serif",
-    letterSpacing: '-0.5px',
-    background: 'linear-gradient(135deg, #D4A574, #FBBF24)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
-  },
-  nav: {
-    display: 'flex',
-    gap: '8px',
-    background: 'rgba(255,255,255,0.03)',
-    padding: '6px',
-    borderRadius: '12px',
-  },
-  navButton: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '10px 20px',
-    background: 'transparent',
-    border: 'none',
-    borderRadius: '8px',
-    color: '#a1a1aa',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: '500',
-    transition: 'all 0.2s ease',
-  },
-  navButtonActive: {
-    background: 'rgba(251, 191, 36, 0.15)',
-    color: '#FBBF24',
-  },
-  navLabel: {
-    fontSize: '14px',
-  },
-  streak: {
-    padding: '8px 16px',
-    background: 'rgba(251, 191, 36, 0.1)',
-    borderRadius: '20px',
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#FBBF24',
-  },
-  main: {
-    padding: '24px 32px',
-    maxWidth: '1600px',
-    margin: '0 auto',
-  },
-  readerContainer: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 380px',
-    gap: '24px',
-    animation: 'fadeIn 0.4s ease',
-  },
-  documentPanel: {
-    background: 'rgba(255,255,255,0.02)',
-    borderRadius: '16px',
-    border: '1px solid rgba(255,255,255,0.06)',
-    padding: '32px 48px',
-    position: 'relative',
-    maxHeight: 'calc(100vh - 140px)',
-    overflowY: 'auto',
-  },
-  documentHeader: {
-    marginBottom: '32px',
-    paddingBottom: '24px',
-    borderBottom: '1px solid rgba(255,255,255,0.06)',
-  },
-  bookTitle: {
-    fontSize: '28px',
-    fontWeight: '700',
-    fontFamily: "'Fraunces', serif",
-    marginBottom: '4px',
-    color: '#fff',
-  },
-  chapterTitle: {
-    fontSize: '16px',
-    color: '#71717a',
-    marginBottom: '16px',
-  },
-  progressBar: {
-    height: '4px',
-    background: 'rgba(255,255,255,0.1)',
-    borderRadius: '2px',
-    overflow: 'hidden',
-    marginBottom: '8px',
-  },
-  progressFill: {
-    height: '100%',
-    background: 'linear-gradient(90deg, #3B82F6, #8B5CF6)',
-    borderRadius: '2px',
-    transition: 'width 0.3s ease',
-  },
-  progressText: {
-    fontSize: '12px',
-    color: '#52525b',
-  },
-  documentContent: {
-    lineHeight: 1.8,
-  },
-  section: {
-    marginBottom: '32px',
-  },
-  sectionHeading: {
-    fontSize: '20px',
-    fontWeight: '600',
-    fontFamily: "'Fraunces', serif",
-    marginBottom: '16px',
-    color: '#FBBF24',
-  },
-  sectionContent: {},
-  paragraph: {
-    marginBottom: '16px',
-    color: '#d4d4d8',
-    fontSize: '16px',
-  },
-  aiPanel: {
-    background: 'rgba(255,255,255,0.02)',
-    borderRadius: '16px',
-    border: '1px solid rgba(255,255,255,0.06)',
-    padding: '24px',
-    height: 'fit-content',
-    position: 'sticky',
-    top: '100px',
-    transition: 'all 0.3s ease',
-  },
-  aiPanelOpen: {
-    background: 'rgba(251, 191, 36, 0.03)',
-    borderColor: 'rgba(251, 191, 36, 0.2)',
-  },
-  aiHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '20px',
-  },
-  aiTitle: {
-    fontSize: '18px',
-    fontWeight: '600',
-    color: '#FBBF24',
-  },
-  closeButton: {
-    background: 'none',
-    border: 'none',
-    color: '#71717a',
-    cursor: 'pointer',
-    fontSize: '18px',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    transition: 'all 0.2s',
-  },
-  selectedTextBox: {
-    background: 'rgba(0,0,0,0.3)',
-    borderRadius: '8px',
-    padding: '12px 16px',
-    marginBottom: '16px',
-    borderLeft: '3px solid #FBBF24',
-  },
-  selectedLabel: {
-    fontSize: '11px',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-    color: '#71717a',
-    display: 'block',
-    marginBottom: '4px',
-  },
-  selectedContent: {
-    fontSize: '14px',
-    color: '#a1a1aa',
-    fontStyle: 'italic',
-    margin: 0,
-  },
-  aiActions: {
-    display: 'flex',
-    gap: '8px',
-    marginBottom: '20px',
-  },
-  aiActionBtn: {
-    flex: 1,
-    padding: '10px 12px',
-    background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: '8px',
-    color: '#a1a1aa',
-    cursor: 'pointer',
-    fontSize: '13px',
-    fontWeight: '500',
-    transition: 'all 0.2s',
-  },
-  aiActionBtnActive: {
-    background: 'rgba(251, 191, 36, 0.15)',
-    borderColor: 'rgba(251, 191, 36, 0.3)',
-    color: '#FBBF24',
-  },
-  aiResponse: {
-    minHeight: '150px',
-  },
-  loadingDots: {
-    display: 'flex',
-    gap: '6px',
-    justifyContent: 'center',
-    padding: '40px 0',
-  },
-  dot: {
-    fontSize: '12px',
-    color: '#FBBF24',
-    animation: 'pulse 1s ease infinite',
-  },
-  responseContent: {
-    animation: 'fadeIn 0.3s ease',
-  },
-  responseLine: {
-    fontSize: '14px',
-    color: '#d4d4d8',
-    marginBottom: '8px',
-    lineHeight: 1.6,
-  },
-  boldLine: {
-    fontSize: '14px',
-    color: '#fff',
-    fontWeight: '600',
-    marginBottom: '8px',
-    marginTop: '12px',
-  },
-  flashcardBtn: {
-    width: '100%',
-    padding: '10px',
-    background: 'transparent',
-    border: '1px dashed rgba(251, 191, 36, 0.3)',
-    borderRadius: '8px',
-    color: '#FBBF24',
-    cursor: 'pointer',
-    fontSize: '13px',
-    marginTop: '16px',
-    transition: 'all 0.2s',
-  },
-  aiPlaceholder: {
-    color: '#52525b',
-    fontSize: '14px',
-    textAlign: 'center',
-    padding: '40px 0',
-  },
-  aiCollapsed: {
-    textAlign: 'center',
-  },
-  aiHint: {
-    color: '#71717a',
-    fontSize: '14px',
-    marginBottom: '20px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
-  },
-  hintIcon: {
-    color: '#FBBF24',
-  },
-  quizButton: {
-    width: '100%',
-    padding: '14px 20px',
-    background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
-    border: 'none',
-    borderRadius: '10px',
-    color: '#fff',
-    cursor: 'pointer',
-    fontSize: '15px',
-    fontWeight: '600',
-    transition: 'all 0.2s',
-  },
-  quizOverlay: {
-    position: 'absolute',
-    inset: 0,
-    background: 'rgba(10, 10, 15, 0.95)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: '16px',
-    animation: 'fadeIn 0.3s ease',
-  },
-  quizCard: {
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: '16px',
-    padding: '32px',
-    maxWidth: '500px',
-    width: '90%',
-    position: 'relative',
-  },
-  quizHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '24px',
-    fontSize: '14px',
-    color: '#71717a',
-  },
-  quizProgress: {
-    color: '#FBBF24',
-    fontWeight: '600',
-  },
-  quizQuestion: {
-    fontSize: '20px',
-    fontWeight: '500',
-    color: '#fff',
-    marginBottom: '24px',
-    lineHeight: 1.5,
-  },
-  quizAnswer: {
-    background: 'rgba(16, 185, 129, 0.1)',
-    border: '1px solid rgba(16, 185, 129, 0.2)',
-    borderRadius: '8px',
-    padding: '16px',
-    marginBottom: '20px',
-    animation: 'fadeIn 0.3s ease',
-  },
-  answerLabel: {
-    display: 'block',
-    fontSize: '12px',
-    color: '#10B981',
-    marginBottom: '4px',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-  },
-  revealButton: {
-    width: '100%',
-    padding: '14px',
-    background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: '8px',
-    color: '#fff',
-    cursor: 'pointer',
-    fontSize: '15px',
-    fontWeight: '500',
-  },
-  quizActions: {
-    display: 'flex',
-    gap: '12px',
-  },
-  quizActionBtn: {
-    flex: 1,
-    padding: '12px',
-    background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
-    border: 'none',
-    borderRadius: '8px',
-    color: '#fff',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: '600',
-  },
-  closeQuiz: {
-    position: 'absolute',
-    top: '16px',
-    right: '16px',
-    background: 'none',
-    border: 'none',
-    color: '#71717a',
-    cursor: 'pointer',
-    fontSize: '18px',
-  },
-  studyContainer: {
-    animation: 'fadeIn 0.4s ease',
-  },
-  statsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '16px',
-    marginBottom: '32px',
-  },
-  statCard: {
-    background: 'rgba(255,255,255,0.02)',
-    border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: '12px',
-    padding: '24px',
-    textAlign: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '8px',
-  },
-  statIcon: {
-    fontSize: '24px',
-  },
-  statValue: {
-    fontSize: '32px',
-    fontWeight: '700',
-    fontFamily: "'Fraunces', serif",
-    color: '#fff',
-  },
-  statLabel: {
-    fontSize: '13px',
-    color: '#71717a',
-  },
-  studySection: {
-    background: 'rgba(255,255,255,0.02)',
-    border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: '16px',
-    padding: '24px',
-    marginBottom: '24px',
-  },
-  studySectionTitle: {
-    fontSize: '18px',
-    fontWeight: '600',
-    marginBottom: '20px',
-    color: '#fff',
-  },
-  flashcardGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: '12px',
-    marginBottom: '20px',
-  },
-  flashcard: {
-    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))',
-    border: '1px solid rgba(139, 92, 246, 0.2)',
-    borderRadius: '10px',
-    padding: '20px',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-  },
-  flashcardFront: {
-    fontSize: '14px',
-    color: '#d4d4d8',
-    lineHeight: 1.5,
-  },
-  reviewButton: {
-    padding: '12px 24px',
-    background: 'linear-gradient(135deg, #3B82F6, #8B5CF6)',
-    border: 'none',
-    borderRadius: '8px',
-    color: '#fff',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: '600',
-  },
-  highlightsList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
-  },
-  highlightItem: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '12px',
-    padding: '12px 16px',
-    background: 'rgba(251, 191, 36, 0.05)',
-    borderRadius: '8px',
-    borderLeft: '3px solid #FBBF24',
-  },
-  highlightMark: {
-    width: '8px',
-    height: '8px',
-    borderRadius: '50%',
-    background: '#FBBF24',
-    marginTop: '6px',
-    flexShrink: 0,
-  },
-  highlightText: {
-    fontSize: '14px',
-    color: '#a1a1aa',
-    lineHeight: 1.5,
-  },
-  libraryContainer: {
-    animation: 'fadeIn 0.4s ease',
-  },
-  libraryHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '24px',
-  },
-  libraryTitle: {
-    fontSize: '24px',
-    fontWeight: '700',
-    fontFamily: "'Fraunces', serif",
-  },
-  addBookBtn: {
-    padding: '10px 20px',
-    background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: '8px',
-    color: '#fff',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: '500',
-  },
-  bookGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: '20px',
-  },
-  bookCard: {
-    background: 'rgba(255,255,255,0.02)',
-    border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: '12px',
-    padding: '20px',
-    display: 'flex',
-    gap: '16px',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-  },
-  bookCover: {
-    width: '60px',
-    height: '80px',
-    borderRadius: '6px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  bookInitial: {
-    fontSize: '24px',
-    fontWeight: '700',
-    color: 'rgba(255,255,255,0.9)',
-    fontFamily: "'Fraunces', serif",
-  },
-  bookInfo: {
-    flex: 1,
-    minWidth: 0,
-  },
-  bookName: {
-    fontSize: '15px',
-    fontWeight: '600',
-    color: '#fff',
-    marginBottom: '4px',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
-  bookAuthor: {
-    fontSize: '13px',
-    color: '#71717a',
-    marginBottom: '12px',
-  },
-  bookProgress: {
-    height: '3px',
-    background: 'rgba(255,255,255,0.1)',
-    borderRadius: '2px',
-    overflow: 'hidden',
-    marginBottom: '4px',
-  },
-  bookProgressFill: {
-    height: '100%',
-    background: 'linear-gradient(90deg, #3B82F6, #8B5CF6)',
-    borderRadius: '2px',
-  },
-  bookProgressText: {
-    fontSize: '11px',
-    color: '#52525b',
-  },
-};
+function CuscusLogo({ size = 32 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="50" cy="55" rx="35" ry="32" fill="#C9A67A"/>
+      <ellipse cx="20" cy="30" rx="12" ry="14" fill="#C9A67A"/>
+      <ellipse cx="20" cy="30" rx="8" ry="10" fill="#E8B4B8"/>
+      <ellipse cx="80" cy="30" rx="12" ry="14" fill="#C9A67A"/>
+      <ellipse cx="80" cy="30" rx="8" ry="10" fill="#E8B4B8"/>
+      <circle cx="38" cy="52" r="11" fill="#2C1810"/>
+      <circle cx="62" cy="52" r="11" fill="#2C1810"/>
+      <circle cx="41" cy="49" r="4" fill="#FFFFFF"/>
+      <circle cx="65" cy="49" r="4" fill="#FFFFFF"/>
+      <ellipse cx="50" cy="65" rx="5" ry="4" fill="#6B4423"/>
+      <path d="M45 72 Q50 77 55 72" stroke="#6B4423" strokeWidth="2" fill="none" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+function MenuIcon() {
+  return (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>)
+}
+
+function LibraryIcon({ active }) {
+  return (<svg width="18" height="18" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>)
+}
+
+function ReadIcon({ active }) {
+  return (<svg width="18" height="18" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>)
+}
+
+function StudyIcon({ active }) {
+  return (<svg width="18" height="18" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>)
+}
+
+function GridIcon() {
+  return (<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>)
+}
+
+function ListIcon() {
+  return (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg>)
+}
+
+function PlusIcon() {
+  return (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>)
+}
+
+function SearchIcon() {
+  return (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>)
+}
+
+function CloseIcon() {
+  return (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>)
+}
+
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('library')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [selectedText, setSelectedText] = useState('')
+  const [showAI, setShowAI] = useState(false)
+  const [aiResponse, setAIResponse] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [highlights, setHighlights] = useState([])
+  const [quizActive, setQuizActive] = useState(false)
+  const [quizQuestions, setQuizQuestions] = useState([])
+  const [quizIndex, setQuizIndex] = useState(0)
+  const [showAnswer, setShowAnswer] = useState(false)
+  const [books, setBooks] = useState(initialBooks)
+  const [viewMode, setViewMode] = useState('grid')
+  const [showAddMenu, setShowAddMenu] = useState(false)
+  const [uploadError, setUploadError] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [currentBook, setCurrentBook] = useState(null)
+  
+  const fileInputRef = useRef(null)
+  const sidebarRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target) && sidebarOpen) {
+        setSidebarOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
+  }, [sidebarOpen])
+
+  const handleTabChange = (tab) => { setActiveTab(tab); setSidebarOpen(false) }
+  const handleSelect = () => {
+    const text = window.getSelection().toString().trim()
+    if (text.length > 3) { setSelectedText(text); setShowAI(true); setAIResponse('') }
+  }
+  const handleAI = async (mode) => {
+    setIsLoading(true)
+    await new Promise(r => setTimeout(r, 500))
+    setAIResponse(getAIResponse(mode, selectedText))
+    setIsLoading(false)
+  }
+  const startQuiz = () => { setQuizQuestions(getAIResponse('quiz', '')); setQuizIndex(0); setShowAnswer(false); setQuizActive(true) }
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+    const fileName = file.name.toLowerCase()
+    const isPdf = fileName.endsWith('.pdf')
+    const isEpub = fileName.endsWith('.epub')
+    if (!isPdf && !isEpub) { setUploadError('Only PDF and EPUB files are supported'); setTimeout(() => setUploadError(''), 3000); return }
+    const colors = ['#DA7756', '#5A9A6E', '#6B8ACE', '#9B7AC7', '#C97A8B', '#5AADAD', '#D4915D', '#7A8C5A']
+    const newBook = {
+      id: Date.now(), title: file.name.replace(/\.(pdf|epub)$/i, ''), author: 'Unknown Author', progress: 0,
+      color: colors[Math.floor(Math.random() * colors.length)], format: isPdf ? 'pdf' : 'epub', lastRead: 'New'
+    }
+    setBooks([newBook, ...books]); setShowAddMenu(false); setUploadError('')
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+  const triggerFileUpload = () => { if (fileInputRef.current) fileInputRef.current.click(); setShowAddMenu(false) }
+  const deleteBook = (bookId, e) => { e.stopPropagation(); if (confirm('Remove this book?')) setBooks(books.filter(b => b.id !== bookId)) }
+  const openBook = (book) => { setCurrentBook(book); setActiveTab('reader'); setSidebarOpen(false) }
+  const filteredBooks = books.filter(book => book.title.toLowerCase().includes(searchQuery.toLowerCase()) || book.author.toLowerCase().includes(searchQuery.toLowerCase()))
+  const recentBooks = [...books].filter(b => b.progress > 0).sort((a, b) => b.progress - a.progress).slice(0, 4)
+
+  const styles = `
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root { height: 100%; }
+    :root {
+      --bg-primary: #FFFFFF;
+      --bg-secondary: #FAF9F7;
+      --bg-tertiary: #F4F3F1;
+      --border: #E8E6E3;
+      --border-light: #DDD;
+      --text-primary: #1F1F1E;
+      --text-secondary: #666560;
+      --text-tertiary: #9D9D97;
+      --accent: #C35A37;
+      --accent-light: #D4714F;
+      --accent-bg: #FEF7F5;
+      --accent-border: #F5DDD5;
+      --danger: #C44;
+      --success: #4A8C5A;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    .app { min-height: 100vh; display: flex; flex-direction: column; }
+    .header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--bg-primary); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .menu-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: none; border-radius: 8px; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
+    .menu-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .logo { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 15px; color: var(--text-primary); }
+    .header-actions { display: flex; gap: 8px; }
+    .icon-btn { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
+    .icon-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .icon-btn.accent { background: var(--accent); border-color: var(--accent); color: white; }
+    .icon-btn.accent:hover { background: var(--accent-light); }
+    .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.25); z-index: 200; opacity: 0; visibility: hidden; transition: all 0.2s; }
+    .sidebar-overlay.open { opacity: 1; visibility: visible; }
+    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 256px; background: var(--bg-primary); border-right: 1px solid var(--border); z-index: 300; transform: translateX(-100%); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 14px 12px; border-bottom: 1px solid var(--border); }
+    .sidebar-logo { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 15px; }
+    .sidebar-close { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: transparent; border: none; border-radius: 6px; color: var(--text-secondary); cursor: pointer; }
+    .sidebar-close:hover { background: var(--bg-tertiary); }
+    .sidebar-nav { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 2px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: transparent; border: none; border-radius: 8px; color: var(--text-secondary); font-size: 14px; font-weight: 450; cursor: pointer; transition: all 0.15s; text-align: left; width: 100%; }
+    .nav-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .nav-item.active { background: var(--accent-bg); color: var(--accent); }
+    .sidebar-footer { padding: 14px; border-top: 1px solid var(--border); }
+    .sidebar-footer-text { font-size: 11px; color: var(--text-tertiary); text-align: center; }
+    .main { flex: 1; width: 100%; max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+    .library-container { animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .search-bar { display: flex; align-items: center; gap: 10px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 24px; }
+    .search-bar:focus-within { border-color: var(--border-light); }
+    .search-bar svg { color: var(--text-tertiary); }
+    .search-input { flex: 1; background: none; border: none; outline: none; font-size: 14px; color: var(--text-primary); }
+    .search-input::placeholder { color: var(--text-tertiary); }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .section-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+    .continue-section { margin-bottom: 28px; }
+    .continue-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .continue-scroll::-webkit-scrollbar { display: none; }
+    .continue-card { flex-shrink: 0; width: 240px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; padding: 12px; display: flex; gap: 12px; cursor: pointer; transition: all 0.15s; }
+    .continue-card:hover { border-color: var(--border-light); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .continue-cover { width: 44px; height: 62px; border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+    .continue-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+    .continue-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .continue-author { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; }
+    .continue-progress-row { display: flex; align-items: center; gap: 8px; }
+    .continue-progress-bar { flex: 1; height: 3px; background: var(--bg-tertiary); border-radius: 2px; overflow: hidden; }
+    .continue-progress-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+    .continue-progress-text { font-size: 11px; color: var(--text-tertiary); }
+    .lib-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .lib-controls { display: flex; gap: 6px; }
+    .view-toggle { display: flex; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    .view-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 28px; background: transparent; border: none; color: var(--text-tertiary); cursor: pointer; }
+    .view-btn:hover { color: var(--text-secondary); }
+    .view-btn.active { background: var(--bg-primary); color: var(--text-primary); box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+    .book-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .book-card { cursor: pointer; transition: transform 0.15s; position: relative; }
+    .book-card:hover { transform: translateY(-2px); }
+    .book-cover-wrap { position: relative; aspect-ratio: 2/3; margin-bottom: 8px; }
+    .book-cover { width: 100%; height: 100%; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
+    .book-cover::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 50%, rgba(0,0,0,0.08) 100%); }
+    .book-initial { font-size: 28px; font-weight: 600; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.15); position: relative; z-index: 1; }
+    .book-cover-title { font-size: 9px; font-weight: 500; color: rgba(255,255,255,0.85); text-align: center; margin-top: 4px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; position: relative; z-index: 1; }
+    .book-progress-line { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: rgba(0,0,0,0.25); }
+    .book-progress-line-fill { height: 100%; background: white; }
+    .book-delete { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.5); border: none; color: white; font-size: 13px; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 2; }
+    .book-card:hover .book-delete { display: flex; }
+    .book-delete:hover { background: var(--danger); }
+    .book-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .book-author { font-size: 11px; color: var(--text-secondary); }
+    .book-list { display: flex; flex-direction: column; gap: 6px; }
+    .book-list-item { display: flex; gap: 12px; padding: 10px 12px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.15s; position: relative; }
+    .book-list-item:hover { border-color: var(--border-light); background: var(--bg-secondary); }
+    .book-list-cover { width: 38px; height: 54px; border-radius: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: white; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .book-list-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+    .book-list-title { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
+    .book-list-author { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+    .book-list-meta { display: flex; align-items: center; gap: 10px; }
+    .book-list-progress { flex: 1; max-width: 100px; height: 3px; background: var(--bg-tertiary); border-radius: 2px; overflow: hidden; }
+    .book-list-progress-fill { height: 100%; background: var(--accent); }
+    .book-list-percent { font-size: 11px; color: var(--text-tertiary); }
+    .book-list-time { font-size: 11px; color: var(--text-tertiary); }
+    .book-list-delete { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; border-radius: 6px; background: var(--bg-tertiary); border: none; color: var(--text-secondary); cursor: pointer; display: none; align-items: center; justify-content: center; }
+    .book-list-item:hover .book-list-delete { display: flex; }
+    .book-list-delete:hover { background: var(--danger); color: white; }
+    .empty-state { text-align: center; padding: 50px 20px; }
+    .empty-icon { font-size: 44px; margin-bottom: 14px; opacity: 0.5; }
+    .empty-text { font-size: 14px; color: var(--text-secondary); margin-bottom: 18px; }
+    .empty-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; background: var(--accent); border: none; border-radius: 8px; color: white; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .reader-container { animation: fadeIn 0.2s ease; max-width: 640px; margin: 0 auto; }
+    .doc-header { margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+    .doc-title { font-size: 24px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.02em; }
+    .doc-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; }
+    .progress-row { display: flex; align-items: center; gap: 10px; }
+    .progress-bar { flex: 1; height: 3px; background: var(--bg-tertiary); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+    .progress-text { font-size: 12px; color: var(--text-tertiary); }
+    .section { margin-bottom: 24px; }
+    .section-heading { font-size: 17px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; }
+    .paragraph { font-size: 15px; color: var(--text-primary); margin-bottom: 12px; line-height: 1.7; }
+    .study-container { animation: fadeIn 0.2s ease; max-width: 640px; margin: 0 auto; }
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 24px; }
+    .stat-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; }
+    .stat-value { font-size: 26px; font-weight: 600; color: var(--text-primary); }
+    .stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .study-section-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; }
+    .card-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+    .card-item { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 14px; color: var(--text-primary); cursor: pointer; transition: all 0.15s; }
+    .card-item:hover { border-color: var(--border-light); background: var(--bg-secondary); }
+    .highlight-item { background: var(--accent-bg); border-left: 3px solid var(--accent); padding: 10px 14px; margin-bottom: 6px; border-radius: 0 8px 8px 0; font-size: 14px; color: var(--text-primary); }
+    .ai-panel { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-primary); border-top: 1px solid var(--border); padding: 16px; transform: translateY(100%); transition: transform 0.25s ease; max-height: 55vh; overflow-y: auto; z-index: 200; box-shadow: 0 -4px 16px rgba(0,0,0,0.06); }
+    .ai-panel.open { transform: translateY(0); }
+    .ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .ai-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--accent); }
+    .close-btn { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; background: transparent; border: none; border-radius: 6px; color: var(--text-secondary); cursor: pointer; }
+    .close-btn:hover { background: var(--bg-tertiary); }
+    .selected-box { background: var(--accent-bg); border: 1px solid var(--accent-border); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+    .selected-label { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 4px; }
+    .selected-text { font-size: 14px; color: var(--text-primary); }
+    .ai-actions { display: flex; gap: 8px; margin-bottom: 12px; }
+    .ai-btn { flex: 1; padding: 10px 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 500; color: var(--text-primary); cursor: pointer; transition: all 0.15s; }
+    .ai-btn:hover { background: var(--bg-tertiary); }
+    .ai-response { font-size: 14px; line-height: 1.65; color: var(--text-primary); white-space: pre-line; }
+    .loading { color: var(--text-tertiary); font-size: 14px; }
+    .hint-bar { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; align-items: center; background: var(--bg-primary); border: 1px solid var(--border); padding: 8px 14px; border-radius: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); z-index: 150; }
+    .hint-text { font-size: 13px; color: var(--text-secondary); }
+    .quiz-btn { padding: 6px 14px; background: var(--accent); border: none; border-radius: 16px; color: white; font-size: 13px; font-weight: 500; cursor: pointer; }
+    .quiz-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 400; }
+    .quiz-card { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 14px; padding: 22px; width: 100%; max-width: 380px; position: relative; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+    .quiz-header { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; }
+    .quiz-progress { color: var(--accent); font-weight: 600; }
+    .quiz-question { font-size: 17px; font-weight: 500; color: var(--text-primary); margin-bottom: 18px; line-height: 1.4; }
+    .quiz-answer { background: rgba(74,140,90,0.08); border: 1px solid rgba(74,140,90,0.2); border-radius: 8px; padding: 12px; margin-bottom: 12px; color: var(--success); }
+    .answer-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 4px; opacity: 0.8; }
+    .primary-btn { width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: 8px; color: white; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .secondary-btn { width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 14px; font-weight: 500; cursor: pointer; }
+    .close-quiz { position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 22px; color: var(--text-tertiary); cursor: pointer; }
+    .upload-error { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--danger); color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px; z-index: 500; }
+    .add-menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 350; display: flex; align-items: flex-end; justify-content: center; }
+    .add-menu { background: var(--bg-primary); border-top-left-radius: 14px; border-top-right-radius: 14px; width: 100%; max-width: 420px; padding: 18px; animation: slideUp 0.2s ease; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .add-menu-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .add-menu-title { font-size: 16px; font-weight: 600; }
+    .add-menu-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; margin-bottom: 8px; transition: all 0.15s; }
+    .add-menu-item:hover { border-color: var(--border-light); }
+    .add-menu-icon { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .add-menu-icon.pdf { background: rgba(201,100,66,0.1); }
+    .add-menu-icon.epub { background: rgba(90,154,110,0.1); }
+    .add-menu-text { flex: 1; }
+    .add-menu-item-title { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+    .add-menu-item-desc { font-size: 12px; color: var(--text-secondary); }
+    .file-input { display: none; }
+    @media (min-width: 768px) {
+      .main { padding: 28px 24px; }
+      .book-grid { grid-template-columns: repeat(4, 1fr); gap: 18px; }
+      .stats-grid { grid-template-columns: repeat(4, 1fr); }
+      .ai-panel { position: fixed; bottom: auto; top: 70px; left: auto; right: 20px; width: 320px; max-height: calc(100vh - 100px); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateX(calc(100% + 20px)); }
+      .ai-panel.open { transform: translateX(0); }
+      .add-menu-overlay { align-items: center; }
+      .add-menu { border-radius: 12px; max-width: 360px; }
+    }
+    @media (min-width: 1024px) { .book-grid { grid-template-columns: repeat(5, 1fr); } }
+    @media (min-width: 1280px) { .book-grid { grid-template-columns: repeat(6, 1fr); } }
+  `
+
+  return (
+    <>
+      <style>{styles}</style>
+      <div className="app">
+        <input ref={fileInputRef} type="file" accept=".pdf,.epub" onChange={handleFileUpload} className="file-input" />
+        <div className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)} />
+        <aside ref={sidebarRef} className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+          <div className="sidebar-header">
+            <div className="sidebar-logo"><CuscusLogo size={24} /><span>Kapul Reader</span></div>
+            <button className="sidebar-close" onClick={() => setSidebarOpen(false)}><CloseIcon /></button>
+          </div>
+          <nav className="sidebar-nav">
+            <button className={`nav-item ${activeTab === 'library' ? 'active' : ''}`} onClick={() => handleTabChange('library')}><LibraryIcon active={activeTab === 'library'} />Library</button>
+            <button className={`nav-item ${activeTab === 'reader' ? 'active' : ''}`} onClick={() => handleTabChange('reader')}><ReadIcon active={activeTab === 'reader'} />Read</button>
+            <button className={`nav-item ${activeTab === 'study' ? 'active' : ''}`} onClick={() => handleTabChange('study')}><StudyIcon active={activeTab === 'study'} />Study</button>
+          </nav>
+          <div className="sidebar-footer"><div className="sidebar-footer-text">Kapul Reading Group</div></div>
+        </aside>
+        <header className="header">
+          <div className="header-left">
+            <button className="menu-btn" onClick={() => setSidebarOpen(true)}><MenuIcon /></button>
+            <div className="logo"><CuscusLogo size={26} /><span>Kapul Reader</span></div>
+          </div>
+          <div className="header-actions">{activeTab === 'library' && <button className="icon-btn accent" onClick={() => setShowAddMenu(true)}><PlusIcon /></button>}</div>
+        </header>
+        <main className="main">
+          {activeTab === 'library' && (
+            <div className="library-container">
+              <div className="search-bar"><SearchIcon /><input type="text" className="search-input" placeholder="Search books..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} /></div>
+              {recentBooks.length > 0 && !searchQuery && (
+                <div className="continue-section">
+                  <div className="section-header"><h2 className="section-title">Continue Reading</h2></div>
+                  <div className="continue-scroll">
+                    {recentBooks.map(book => (
+                      <div key={book.id} className="continue-card" onClick={() => openBook(book)}>
+                        <div className="continue-cover" style={{background: book.color}}>{book.title.charAt(0)}</div>
+                        <div className="continue-info">
+                          <div className="continue-title">{book.title}</div>
+                          <div className="continue-author">{book.author}</div>
+                          <div className="continue-progress-row"><div className="continue-progress-bar"><div className="continue-progress-fill" style={{width: `${book.progress}%`}} /></div><span className="continue-progress-text">{book.progress}%</span></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="lib-header">
+                <h2 className="section-title">{searchQuery ? `Results for "${searchQuery}"` : 'All Books'}</h2>
+                <div className="lib-controls">
+                  <div className="view-toggle">
+                    <button className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`} onClick={() => setViewMode('grid')}><GridIcon /></button>
+                    <button className={`view-btn ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')}><ListIcon /></button>
+                  </div>
+                </div>
+              </div>
+              {filteredBooks.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-icon">📚</div>
+                  <div className="empty-text">{searchQuery ? 'No books found' : 'Your library is empty'}</div>
+                  {!searchQuery && <button className="empty-btn" onClick={() => setShowAddMenu(true)}><PlusIcon /> Add your first book</button>}
+                </div>
+              ) : viewMode === 'grid' ? (
+                <div className="book-grid">
+                  {filteredBooks.map(book => (
+                    <div key={book.id} className="book-card" onClick={() => openBook(book)}>
+                      <div className="book-cover-wrap">
+                        <div className="book-cover" style={{background: book.color}}>
+                          <span className="book-initial">{book.title.charAt(0)}</span>
+                          <span className="book-cover-title">{book.title}</span>
+                          {book.progress > 0 && <div className="book-progress-line"><div className="book-progress-line-fill" style={{width: `${book.progress}%`}} /></div>}
+                        </div>
+                        <button className="book-delete" onClick={(e) => deleteBook(book.id, e)}>×</button>
+                      </div>
+                      <div className="book-title">{book.title}</div>
+                      <div className="book-author">{book.author}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="book-list">
+                  {filteredBooks.map(book => (
+                    <div key={book.id} className="book-list-item" onClick={() => openBook(book)}>
+                      <div className="book-list-cover" style={{background: book.color}}>{book.title.charAt(0)}</div>
+                      <div className="book-list-info">
+                        <div className="book-list-title">{book.title}</div>
+                        <div className="book-list-author">{book.author}</div>
+                        <div className="book-list-meta"><div className="book-list-progress"><div className="book-list-progress-fill" style={{width: `${book.progress}%`}} /></div><span className="book-list-percent">{book.progress}%</span><span className="book-list-time">{book.lastRead}</span></div>
+                      </div>
+                      <button className="book-list-delete" onClick={(e) => deleteBook(book.id, e)}>×</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          {activeTab === 'reader' && (
+            <div className="reader-container" onMouseUp={handleSelect} onTouchEnd={handleSelect}>
+              <div className="doc-header">
+                <h1 className="doc-title">{currentBook?.title || sampleContent.title}</h1>
+                <p className="doc-subtitle">{sampleContent.chapter}</p>
+                <div className="progress-row"><div className="progress-bar"><div className="progress-fill" style={{width: `${currentBook?.progress || 35}%`}} /></div><span className="progress-text">{currentBook?.progress || 35}%</span></div>
+              </div>
+              {sampleContent.sections.map(section => (<div key={section.id} className="section"><h2 className="section-heading">{section.heading}</h2>{section.content.split('\n\n').map((para, i) => (<p key={i} className="paragraph">{para}</p>))}</div>))}
+            </div>
+          )}
+          {activeTab === 'study' && (
+            <div className="study-container">
+              <div className="stats-grid"><div className="stat-card"><div className="stat-value">3</div><div className="stat-label">Pages read</div></div><div className="stat-card"><div className="stat-value">7</div><div className="stat-label">Problems</div></div><div className="stat-card"><div className="stat-value">12</div><div className="stat-label">Flashcards</div></div><div className="stat-card"><div className="stat-value">73%</div><div className="stat-label">Score</div></div></div>
+              <div className="study-section-title">Flashcards</div>
+              <div className="card-list"><div className="card-item">What is a derivative?</div><div className="card-item">Power Rule formula</div><div className="card-item">Derivative of a constant</div></div>
+              <div className="study-section-title">Highlights</div>
+              {["The derivative measures rate of change", "f'(x) = lim[h→0] (f(x+h) - f(x)) / h", ...highlights].map((h, i) => (<div key={i} className="highlight-item">{h}</div>))}
+            </div>
+          )}
+        </main>
+        {activeTab === 'reader' && !showAI && (<div className="hint-bar"><span className="hint-text">Select text to explain</span><button className="quiz-btn" onClick={startQuiz}>Quiz me</button></div>)}
+        <div className={`ai-panel ${showAI ? 'open' : ''}`}>
+          <div className="ai-header"><span className="ai-title"><CuscusLogo size={20} />Kapul AI</span><button className="close-btn" onClick={() => setShowAI(false)}><CloseIcon /></button></div>
+          {selectedText && <div className="selected-box"><div className="selected-label">Selected text</div><div className="selected-text">{selectedText.slice(0, 100)}{selectedText.length > 100 ? '...' : ''}</div></div>}
+          <div className="ai-actions"><button className="ai-btn" onClick={() => handleAI('explain')}>Explain</button><button className="ai-btn" onClick={() => handleAI('solve')}>Solve</button><button className="ai-btn" onClick={() => setHighlights([...highlights, selectedText])}>Save</button></div>
+          {isLoading ? <div className="loading">Thinking...</div> : aiResponse && <div className="ai-response">{aiResponse}</div>}
+        </div>
+        {quizActive && (
+          <div className="quiz-overlay" onClick={() => setQuizActive(false)}>
+            <div className="quiz-card" onClick={e => e.stopPropagation()}>
+              <div className="quiz-header"><span>Quiz</span><span className="quiz-progress">{quizIndex + 1} of {quizQuestions.length}</span></div>
+              <div className="quiz-question">{quizQuestions[quizIndex]?.q}</div>
+              {showAnswer ? (<><div className="quiz-answer"><div className="answer-label">Answer</div>{quizQuestions[quizIndex]?.a}</div><button className="primary-btn" onClick={() => { if (quizIndex < quizQuestions.length - 1) { setQuizIndex(quizIndex + 1); setShowAnswer(false) } else { setQuizActive(false) } }}>{quizIndex < quizQuestions.length - 1 ? 'Next question' : 'Done'}</button></>) : (<button className="secondary-btn" onClick={() => setShowAnswer(true)}>Show answer</button>)}
+              <button className="close-quiz" onClick={() => setQuizActive(false)}>×</button>
+            </div>
+          </div>
+        )}
+        {showAddMenu && (
+          <div className="add-menu-overlay" onClick={() => setShowAddMenu(false)}>
+            <div className="add-menu" onClick={e => e.stopPropagation()}>
+              <div className="add-menu-header"><span className="add-menu-title">Add to Library</span><button className="close-btn" onClick={() => setShowAddMenu(false)}><CloseIcon /></button></div>
+              <div className="add-menu-item" onClick={triggerFileUpload}><div className="add-menu-icon pdf">📕</div><div className="add-menu-text"><div className="add-menu-item-title">PDF Document</div><div className="add-menu-item-desc">Upload a PDF file</div></div></div>
+              <div className="add-menu-item" onClick={triggerFileUpload}><div className="add-menu-icon epub">📗</div><div className="add-menu-text"><div className="add-menu-item-title">EPUB Book</div><div className="add-menu-item-desc">Upload an EPUB file</div></div></div>
+            </div>
+          </div>
+        )}
+        {uploadError && <div className="upload-error">{uploadError}</div>}
+      </div>
+    </>
+  )
+}
