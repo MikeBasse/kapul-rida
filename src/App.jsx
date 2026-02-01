@@ -45,67 +45,13 @@ Problem 3: If y = (2x + 1) / (x - 1), find dy/dx`
 }
 
 const initialBooks = [
-  { 
-    id: 1, 
-    title: "Calculus", 
-    author: "James Stewart", 
-    progress: 35, 
-    image: "https://m.media-amazon.com/images/I/81zFzVYwG-L.jpg", 
-    fallbackImage: "/images/placeholder.jpg", 
-    format: "pdf", 
-    lastRead: "2 hours ago" 
-  },
-  { 
-    id: 2, 
-    title: "Organic Chemistry", 
-    author: "David Klein", 
-    progress: 12, 
-    image: "https://m.media-amazon.com/images/I/91bXjvXzYhL.jpg", 
-    fallbackImage: "/images/placeholder.jpg", 
-    format: "pdf", 
-    lastRead: "Yesterday" 
-  },
-  { 
-    id: 3, 
-    title: "Physics", 
-    author: "Halliday & Resnick", 
-    progress: 67, 
-    image: "https://m.media-amazon.com/images/I/81vZp9ZyVhL.jpg", 
-    fallbackImage: "/images/placeholder.jpg", 
-    format: "epub", 
-    lastRead: "3 days ago" 
-  },
-  { 
-    id: 4, 
-    title: "Linear Algebra", 
-    author: "Gilbert Strang", 
-    progress: 8, 
-    image: "https://m.media-amazon.com/images/I/71qYfXcFqjL.jpg", 
-    fallbackImage: "/images/placeholder.jpg", 
-    format: "pdf", 
-    lastRead: "1 week ago" 
-  },
-  { 
-    id: 5, 
-    title: "Biology", 
-    author: "Campbell", 
-    progress: 22, 
-    image: "https://m.media-amazon.com/images/I/91vXjvXzYhL.jpg", 
-    fallbackImage: "/images/placeholder.jpg", 
-    format: "pdf", 
-    lastRead: "2 weeks ago" 
-  },
-  { 
-    id: 6, 
-    title: "Chemistry", 
-    author: "Zumdahl", 
-    progress: 0, 
-    image: "https://m.media-amazon.com/images/I/81Zp9ZyVhL.jpg", 
-    fallbackImage: "/images/placeholder.jpg", 
-    format: "epub", 
-    lastRead: "New" 
-  }
-];
+  { id: 1, title: "Calculus", author: "James Stewart", progress: 35, color: "#DA7756", format: "pdf", lastRead: "2 hours ago" },
+  { id: 2, title: "Organic Chemistry", author: "David Klein", progress: 12, color: "#5A9A6E", format: "pdf", lastRead: "Yesterday" },
+  { id: 3, title: "Physics", author: "Halliday & Resnick", progress: 67, color: "#6B8ACE", format: "epub", lastRead: "3 days ago" },
+  { id: 4, title: "Linear Algebra", author: "Gilbert Strang", progress: 8, color: "#9B7AC7", format: "pdf", lastRead: "1 week ago" },
+  { id: 5, title: "Biology", author: "Campbell", progress: 22, color: "#C97A8B", format: "pdf", lastRead: "2 weeks ago" },
+  { id: 6, title: "Chemistry", author: "Zumdahl", progress: 0, color: "#5AADAD", format: "epub", lastRead: "New" }
+]
 
 const getAIResponse = (type, text) => {
   const responses = {
