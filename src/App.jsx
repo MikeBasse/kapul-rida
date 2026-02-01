@@ -623,7 +623,7 @@ export default function App() {
                 <div className="empty-state">
                   <div className="empty-icon">📚</div>
                   <div className="empty-text">{searchQuery ? 'No books found' : 'Your library is empty'}</div>
-                  {!searchQuery && <button className="empty-btn" onClick={() => setShowAddMenu(true)}><PlusIcon /> Add your first book</button>}
+                  {!searchQuery && <button className="empty-btn" onClick={() => setShowAddMenu(true)}><PlusIcon /> Add your first book or document</button>}
                 </div>
               ) : viewMode === 'grid' ? (
                 <div className="book-grid">
@@ -714,8 +714,8 @@ export default function App() {
           <div className="add-menu-overlay" onClick={() => setShowAddMenu(false)}>
             <div className="add-menu" onClick={e => e.stopPropagation()}>
               <div className="add-menu-header"><span className="add-menu-title">Add to Library</span><button className="close-btn" onClick={() => setShowAddMenu(false)}><CloseIcon /></button></div>
-              <div className="add-menu-item" onClick={triggerFileUpload}><div className="add-menu-icon pdf">📕</div><div className="add-menu-text"><div className="add-menu-item-title">PDF Document</div><div className="add-menu-item-desc">Upload a PDF file</div></div></div>
-              <div className="add-menu-item" onClick={triggerFileUpload}><div className="add-menu-icon epub">📗</div><div className="add-menu-text"><div className="add-menu-item-title">EPUB Book</div><div className="add-menu-item-desc">Upload an EPUB file</div></div></div>
+              <div className="add-menu-item" onClick={triggerFileUpload}><div className="add-menu-icon pdf">📕</div><div className="add-menu-text"><div className="add-menu-item-title">PDF Book or Document</div><div className="add-menu-item-desc">Upload a PDF file</div></div></div>
+              <div className="add-menu-item" onClick={triggerFileUpload}><div className="add-menu-icon epub">📗</div><div className="add-menu-text"><div className="add-menu-item-title">EPUB Book or Document</div><div className="add-menu-item-desc">Upload an EPUB file</div></div></div>
             </div>
           </div>
         )}
