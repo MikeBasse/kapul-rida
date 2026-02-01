@@ -1,4 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
+
+// PDF.js and EPUB.js will be loaded from CDN
+const PDFJS_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'
+const PDFJS_WORKER_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+const EPUBJS_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.93/epub.min.js'
 
 const sampleContent = {
   title: "Introduction to Calculus",
@@ -44,12 +49,6 @@ Problem 3: If y = (2x + 1) / (x - 1), find dy/dx`
   ]
 }
 
-// Sample books - add your Google Drive image URLs here
-// You can use any of these formats:
-// 1. Direct link: https://drive.google.com/uc?export=view&id=FILE_ID
-// 2. Share link: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
-// 3. Open link: https://drive.google.com/open?id=FILE_ID
-// 4. Just the FILE_ID (the app will convert it automatically)
 const initialBooks = [
   { 
     id: 1, 
@@ -59,7 +58,10 @@ const initialBooks = [
     color: "#DA7756", 
     format: "pdf", 
     lastRead: "2 hours ago",
-    coverImage: "https://drive.google.com/file/d/1xqiwbEE4NiiwfC6JwvzIwuZip4quOQYR/view?usp=drive_link" // Paste Google Drive file ID or full URL here
+    coverImage: "https://drive.google.com/file/d/1xqiwbEE4NiiwfC6JwvzIwuZip4quOQYR/view?usp=drive_link",
+    fileData: null,
+    totalPages: 0,
+    currentPage: 1
   },
   { 
     id: 2, 
@@ -69,7 +71,10 @@ const initialBooks = [
     color: "#5A9A6E", 
     format: "pdf", 
     lastRead: "Yesterday",
-    coverImage: "https://drive.google.com/file/d/1GrQEXdvjJcKIpr0eoMpEbNCZSnXOyHmP/view?usp=drive_link"
+    coverImage: "https://drive.google.com/file/d/1GrQEXdvjJcKIpr0eoMpEbNCZSnXOyHmP/view?usp=drive_link",
+    fileData: null,
+    totalPages: 0,
+    currentPage: 1
   },
   { 
     id: 3, 
@@ -79,7 +84,10 @@ const initialBooks = [
     color: "#6B8ACE", 
     format: "epub", 
     lastRead: "3 days ago",
-    coverImage: "https://drive.google.com/file/d/1q2KO9rVlwwYD93uFtbu474tY2QThvlWS/view?usp=drive_link"
+    coverImage: "https://drive.google.com/file/d/1q2KO9rVlwwYD93uFtbu474tY2QThvlWS/view?usp=drive_link",
+    fileData: null,
+    totalPages: 0,
+    currentPage: 1
   },
   { 
     id: 4, 
@@ -89,7 +97,10 @@ const initialBooks = [
     color: "#9B7AC7", 
     format: "pdf", 
     lastRead: "1 week ago",
-    coverImage: "https://drive.google.com/file/d/1CVu95jSVd1N5L0nhRFsuj922qDBQ0ehl/view?usp=drive_link"
+    coverImage: "https://drive.google.com/file/d/1CVu95jSVd1N5L0nhRFsuj922qDBQ0ehl/view?usp=drive_link",
+    fileData: null,
+    totalPages: 0,
+    currentPage: 1
   },
   { 
     id: 5, 
@@ -99,7 +110,10 @@ const initialBooks = [
     color: "#C97A8B", 
     format: "pdf", 
     lastRead: "2 weeks ago",
-    coverImage: "https://drive.google.com/file/d/1wjqNt-P2YH9moUBYR7if2SD1cCZTEIy3/view?usp=drive_link"
+    coverImage: "https://drive.google.com/file/d/1wjqNt-P2YH9moUBYR7if2SD1cCZTEIy3/view?usp=drive_link",
+    fileData: null,
+    totalPages: 0,
+    currentPage: 1
   },
   { 
     id: 6, 
@@ -109,52 +123,25 @@ const initialBooks = [
     color: "#5AADAD", 
     format: "epub", 
     lastRead: "New",
-    coverImage: "https://drive.google.com/file/d/1Ksix4GwUYu7SE121wi_bJNEUz5WFzN1M/view?usp=drive_link"
+    coverImage: "https://drive.google.com/file/d/1Ksix4GwUYu7SE121wi_bJNEUz5WFzN1M/view?usp=drive_link",
+    fileData: null,
+    totalPages: 0,
+    currentPage: 1
   }
 ]
 
-// Convert any Google Drive URL format to direct viewable image URL
 function getGoogleDriveImageUrl(input) {
   if (!input || !input.trim()) return null
-  
   const trimmed = input.trim()
-  
-  // Already a direct URL (non-Google Drive)
-  if (trimmed.startsWith('http') && !trimmed.includes('drive.google.com')) {
-    return trimmed
-  }
-  
-  // Already in correct format
-  if (trimmed.includes('drive.google.com/uc?')) {
-    return trimmed
-  }
-  
-  // Extract file ID from various Google Drive URL formats
+  if (trimmed.startsWith('http') && !trimmed.includes('drive.google.com')) return trimmed
+  if (trimmed.includes('drive.google.com/uc?')) return trimmed
   let fileId = null
-  
-  // Format: https://drive.google.com/file/d/FILE_ID/view...
   const fileMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
-  if (fileMatch) {
-    fileId = fileMatch[1]
-  }
-  
-  // Format: https://drive.google.com/open?id=FILE_ID
+  if (fileMatch) fileId = fileMatch[1]
   const openMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/)
-  if (!fileId && openMatch) {
-    fileId = openMatch[1]
-  }
-  
-  // Format: Just the file ID (no URL)
-  if (!fileId && /^[a-zA-Z0-9_-]{20,}$/.test(trimmed)) {
-    fileId = trimmed
-  }
-  
-  if (fileId) {
-    // Use lh3.googleusercontent.com for better reliability
-    return `https://lh3.googleusercontent.com/d/${fileId}`
-  }
-  
-  // Return as-is if we can't parse it
+  if (!fileId && openMatch) fileId = openMatch[1]
+  if (!fileId && /^[a-zA-Z0-9_-]{20,}$/.test(trimmed)) fileId = trimmed
+  if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`
   return trimmed
 }
 
@@ -188,6 +175,25 @@ const getAIResponse = (type, text) => {
   return "Select text to get an explanation."
 }
 
+// Custom hook to load external scripts
+function useScript(src, onLoad) {
+  useEffect(() => {
+    const existingScript = document.querySelector(`script[src="${src}"]`)
+    if (existingScript) {
+      if (onLoad) onLoad()
+      return
+    }
+    const script = document.createElement('script')
+    script.src = src
+    script.async = true
+    script.onload = onLoad
+    document.body.appendChild(script)
+    return () => {
+      // Don't remove the script on cleanup to allow reuse
+    }
+  }, [src, onLoad])
+}
+
 // KLS Logo
 function KLSLogo({ size = 32 }) {
   return (
@@ -198,14 +204,11 @@ function KLSLogo({ size = 32 }) {
   )
 }
 
-// Book Cover Image Component with error handling
 function BookCoverImage({ src, alt, className }) {
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(true)
   const imageUrl = getGoogleDriveImageUrl(src)
-  
   if (!imageUrl || error) return null
-  
   return (
     <>
       {loading && <div className="image-loading">Loading...</div>}
@@ -222,6 +225,7 @@ function BookCoverImage({ src, alt, className }) {
   )
 }
 
+// Icons
 function MenuIcon() {
   return (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>)
 }
@@ -262,6 +266,303 @@ function ImageIcon() {
   return (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>)
 }
 
+function ChevronLeftIcon() {
+  return (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>)
+}
+
+function ChevronRightIcon() {
+  return (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>)
+}
+
+function ZoomInIcon() {
+  return (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>)
+}
+
+function ZoomOutIcon() {
+  return (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>)
+}
+
+// PDF Viewer Component
+function PDFViewer({ fileData, currentPage, onPageChange, onTotalPages, scale = 1.2 }) {
+  const canvasRef = useRef(null)
+  const [pdfDoc, setPdfDoc] = useState(null)
+  const [pageText, setPageText] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [pdfJsLoaded, setPdfJsLoaded] = useState(false)
+
+  // Load PDF.js
+  useScript(PDFJS_CDN, () => {
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_CDN
+      setPdfJsLoaded(true)
+    }
+  })
+
+  // Load PDF document
+  useEffect(() => {
+    if (!pdfJsLoaded || !fileData) return
+
+    const loadPdf = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const loadingTask = window.pdfjsLib.getDocument({ data: fileData })
+        const pdf = await loadingTask.promise
+        setPdfDoc(pdf)
+        onTotalPages(pdf.numPages)
+      } catch (err) {
+        console.error('Error loading PDF:', err)
+        setError('Failed to load PDF. The file may be corrupted or password-protected.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadPdf()
+  }, [fileData, pdfJsLoaded, onTotalPages])
+
+  // Render current page
+  useEffect(() => {
+    if (!pdfDoc || !canvasRef.current) return
+
+    const renderPage = async () => {
+      try {
+        const page = await pdfDoc.getPage(currentPage)
+        const viewport = page.getViewport({ scale })
+        const canvas = canvasRef.current
+        const context = canvas.getContext('2d')
+
+        canvas.height = viewport.height
+        canvas.width = viewport.width
+
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        }
+
+        await page.render(renderContext).promise
+
+        // Extract text for AI features
+        const textContent = await page.getTextContent()
+        const text = textContent.items.map(item => item.str).join(' ')
+        setPageText(text)
+      } catch (err) {
+        console.error('Error rendering page:', err)
+      }
+    }
+
+    renderPage()
+  }, [pdfDoc, currentPage, scale])
+
+  if (loading) {
+    return <div className="pdf-loading">Loading PDF...</div>
+  }
+
+  if (error) {
+    return <div className="pdf-error">{error}</div>
+  }
+
+  return (
+    <div className="pdf-viewer">
+      <canvas ref={canvasRef} className="pdf-canvas" />
+      <div className="pdf-text-layer" style={{ display: 'none' }}>{pageText}</div>
+    </div>
+  )
+}
+
+// EPUB Viewer Component
+function EPUBViewer({ fileData, currentPage, onPageChange, onTotalPages }) {
+  const viewerRef = useRef(null)
+  const [book, setBook] = useState(null)
+  const [rendition, setRendition] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [epubJsLoaded, setEpubJsLoaded] = useState(false)
+  const [chapters, setChapters] = useState([])
+  const [currentChapter, setCurrentChapter] = useState(0)
+
+  // Load EPUB.js
+  useScript(EPUBJS_CDN, () => {
+    if (window.ePub) {
+      setEpubJsLoaded(true)
+    }
+  })
+
+  // Load EPUB document
+  useEffect(() => {
+    if (!epubJsLoaded || !fileData || !viewerRef.current) return
+
+    const loadEpub = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        // Clean up previous rendition
+        if (rendition) {
+          rendition.destroy()
+        }
+
+        const epub = window.ePub(fileData)
+        setBook(epub)
+
+        const rend = epub.renderTo(viewerRef.current, {
+          width: '100%',
+          height: '100%',
+          spread: 'none',
+          flow: 'paginated'
+        })
+
+        await rend.display()
+        setRendition(rend)
+
+        // Get chapters/spine items
+        const spine = epub.spine
+        if (spine && spine.items) {
+          setChapters(spine.items)
+          onTotalPages(spine.items.length)
+        }
+
+        // Handle location changes
+        rend.on('relocated', (location) => {
+          if (location.start && location.start.index !== undefined) {
+            setCurrentChapter(location.start.index)
+          }
+        })
+
+      } catch (err) {
+        console.error('Error loading EPUB:', err)
+        setError('Failed to load EPUB. The file may be corrupted.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadEpub()
+
+    return () => {
+      if (rendition) {
+        rendition.destroy()
+      }
+    }
+  }, [fileData, epubJsLoaded])
+
+  // Navigate pages
+  const goNext = useCallback(() => {
+    if (rendition) {
+      rendition.next()
+    }
+  }, [rendition])
+
+  const goPrev = useCallback(() => {
+    if (rendition) {
+      rendition.prev()
+    }
+  }, [rendition])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowRight') goNext()
+      if (e.key === 'ArrowLeft') goPrev()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [goNext, goPrev])
+
+  if (loading) {
+    return <div className="epub-loading">Loading EPUB...</div>
+  }
+
+  if (error) {
+    return <div className="epub-error">{error}</div>
+  }
+
+  return (
+    <div className="epub-viewer">
+      <div ref={viewerRef} className="epub-content" />
+      <div className="epub-nav">
+        <button className="epub-nav-btn" onClick={goPrev}><ChevronLeftIcon /></button>
+        <span className="epub-chapter-info">
+          {chapters.length > 0 ? `${currentChapter + 1} / ${chapters.length}` : ''}
+        </span>
+        <button className="epub-nav-btn" onClick={goNext}><ChevronRightIcon /></button>
+      </div>
+    </div>
+  )
+}
+
+// Document Reader Component (combines PDF and EPUB viewers)
+function DocumentReader({ book, onUpdateBook }) {
+  const [currentPage, setCurrentPage] = useState(book?.currentPage || 1)
+  const [totalPages, setTotalPages] = useState(book?.totalPages || 0)
+  const [scale, setScale] = useState(1.2)
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage)
+      const progress = Math.round((newPage / totalPages) * 100)
+      onUpdateBook({ ...book, currentPage: newPage, progress })
+    }
+  }
+
+  const handleTotalPages = (pages) => {
+    setTotalPages(pages)
+    onUpdateBook({ ...book, totalPages: pages })
+  }
+
+  const handleZoomIn = () => setScale(s => Math.min(s + 0.2, 3))
+  const handleZoomOut = () => setScale(s => Math.max(s - 0.2, 0.5))
+
+  if (!book?.fileData) {
+    return null
+  }
+
+  return (
+    <div className="document-reader">
+      <div className="reader-toolbar">
+        <div className="toolbar-left">
+          <button className="toolbar-btn" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage <= 1}>
+            <ChevronLeftIcon />
+          </button>
+          <span className="page-info">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button className="toolbar-btn" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage >= totalPages}>
+            <ChevronRightIcon />
+          </button>
+        </div>
+        {book.format === 'pdf' && (
+          <div className="toolbar-right">
+            <button className="toolbar-btn" onClick={handleZoomOut}><ZoomOutIcon /></button>
+            <span className="zoom-info">{Math.round(scale * 100)}%</span>
+            <button className="toolbar-btn" onClick={handleZoomIn}><ZoomInIcon /></button>
+          </div>
+        )}
+      </div>
+      
+      <div className="reader-content">
+        {book.format === 'pdf' ? (
+          <PDFViewer
+            fileData={book.fileData}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+            onTotalPages={handleTotalPages}
+            scale={scale}
+          />
+        ) : (
+          <EPUBViewer
+            fileData={book.fileData}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+            onTotalPages={handleTotalPages}
+          />
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('library')
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -282,6 +583,8 @@ export default function App() {
   const [currentBook, setCurrentBook] = useState(null)
   const [showImageInput, setShowImageInput] = useState(null)
   const [imageUrl, setImageUrl] = useState('')
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isUploading, setIsUploading] = useState(false)
   
   const fileInputRef = useRef(null)
   const sidebarRef = useRef(null)
@@ -301,43 +604,118 @@ export default function App() {
   }, [sidebarOpen])
 
   const handleTabChange = (tab) => { setActiveTab(tab); setSidebarOpen(false) }
+  
   const handleSelect = () => {
     const text = window.getSelection().toString().trim()
     if (text.length > 3) { setSelectedText(text); setShowAI(true); setAIResponse('') }
   }
+  
   const handleAI = async (mode) => {
     setIsLoading(true)
     await new Promise(r => setTimeout(r, 500))
     setAIResponse(getAIResponse(mode, selectedText))
     setIsLoading(false)
   }
-  const startQuiz = () => { setQuizQuestions(getAIResponse('quiz', '')); setQuizIndex(0); setShowAnswer(false); setQuizActive(true) }
   
-  const handleFileUpload = (event) => {
+  const startQuiz = () => { 
+    setQuizQuestions(getAIResponse('quiz', '')); 
+    setQuizIndex(0); 
+    setShowAnswer(false); 
+    setQuizActive(true) 
+  }
+  
+  const handleFileUpload = async (event) => {
     const file = event.target.files[0]
     if (!file) return
+    
     const fileName = file.name.toLowerCase()
     const isPdf = fileName.endsWith('.pdf')
     const isEpub = fileName.endsWith('.epub')
-    if (!isPdf && !isEpub) { setUploadError('Only PDF and EPUB files are supported'); setTimeout(() => setUploadError(''), 3000); return }
-    const colors = ['#DA7756', '#5A9A6E', '#6B8ACE', '#9B7AC7', '#C97A8B', '#5AADAD', '#D4915D', '#7A8C5A']
-    const newBook = {
-      id: Date.now(), 
-      title: file.name.replace(/\.(pdf|epub)$/i, ''), 
-      author: 'Unknown Author', 
-      progress: 0,
-      color: colors[Math.floor(Math.random() * colors.length)], 
-      format: isPdf ? 'pdf' : 'epub', 
-      lastRead: 'New',
-      coverImage: ''
+    
+    if (!isPdf && !isEpub) { 
+      setUploadError('Only PDF and EPUB files are supported')
+      setTimeout(() => setUploadError(''), 3000)
+      return 
     }
-    setBooks([newBook, ...books]); setShowAddMenu(false); setUploadError('')
-    if (fileInputRef.current) fileInputRef.current.value = ''
+
+    setIsUploading(true)
+    setUploadProgress(0)
+
+    try {
+      // Read file as ArrayBuffer
+      const arrayBuffer = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onprogress = (e) => {
+          if (e.lengthComputable) {
+            setUploadProgress(Math.round((e.loaded / e.total) * 100))
+          }
+        }
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = reject
+        reader.readAsArrayBuffer(file)
+      })
+
+      const colors = ['#DA7756', '#5A9A6E', '#6B8ACE', '#9B7AC7', '#C97A8B', '#5AADAD', '#D4915D', '#7A8C5A']
+      const newBook = {
+        id: Date.now(), 
+        title: file.name.replace(/\.(pdf|epub)$/i, ''), 
+        author: 'Unknown Author', 
+        progress: 0,
+        color: colors[Math.floor(Math.random() * colors.length)], 
+        format: isPdf ? 'pdf' : 'epub', 
+        lastRead: 'New',
+        coverImage: '',
+        fileData: arrayBuffer,
+        totalPages: 0,
+        currentPage: 1
+      }
+      
+      setBooks([newBook, ...books])
+      setShowAddMenu(false)
+      setUploadError('')
+      
+    } catch (err) {
+      console.error('Error reading file:', err)
+      setUploadError('Failed to read file. Please try again.')
+      setTimeout(() => setUploadError(''), 3000)
+    } finally {
+      setIsUploading(false)
+      setUploadProgress(0)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
   }
 
-  const triggerFileUpload = () => { if (fileInputRef.current) fileInputRef.current.click(); setShowAddMenu(false) }
-  const deleteBook = (bookId, e) => { e.stopPropagation(); if (confirm('Remove this book?')) setBooks(books.filter(b => b.id !== bookId)) }
-  const openBook = (book) => { setCurrentBook(book); setActiveTab('reader'); setSidebarOpen(false) }
+  const triggerFileUpload = () => { 
+    if (fileInputRef.current) fileInputRef.current.click()
+    setShowAddMenu(false) 
+  }
+  
+  const deleteBook = (bookId, e) => { 
+    e.stopPropagation()
+    if (confirm('Remove this book?')) {
+      setBooks(books.filter(b => b.id !== bookId))
+      if (currentBook?.id === bookId) {
+        setCurrentBook(null)
+        setActiveTab('library')
+      }
+    }
+  }
+  
+  const openBook = (book) => { 
+    setCurrentBook(book)
+    setActiveTab('reader')
+    setSidebarOpen(false)
+    
+    // Update last read
+    setBooks(books.map(b => 
+      b.id === book.id ? { ...b, lastRead: 'Just now' } : b
+    ))
+  }
+
+  const updateBook = (updatedBook) => {
+    setBooks(books.map(b => b.id === updatedBook.id ? updatedBook : b))
+    setCurrentBook(updatedBook)
+  }
 
   const addCoverImage = (bookId) => {
     if (!imageUrl.trim()) return
@@ -353,11 +731,18 @@ export default function App() {
     setImageUrl(book?.coverImage || '')
   }
 
-  const filteredBooks = books.filter(book => book.title.toLowerCase().includes(searchQuery.toLowerCase()) || book.author.toLowerCase().includes(searchQuery.toLowerCase()))
-  const recentBooks = [...books].filter(b => b.progress > 0).sort((a, b) => b.progress - a.progress).slice(0, 4)
+  const filteredBooks = books.filter(book => 
+    book.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    book.author.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+  
+  const recentBooks = [...books]
+    .filter(b => b.progress > 0)
+    .sort((a, b) => b.progress - a.progress)
+    .slice(0, 4)
 
-  // Check if book has a valid cover image
   const hasValidCover = (book) => book.coverImage && book.coverImage.trim().length > 0
+  const hasFileData = (book) => book.fileData !== null
 
   const styles = `
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -406,6 +791,7 @@ export default function App() {
     .sidebar-footer { padding: 14px; border-top: 1px solid var(--border); }
     .sidebar-footer-text { font-size: 11px; color: var(--text-tertiary); text-align: center; }
     .main { flex: 1; width: 100%; max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+    .main.reader-mode { max-width: 100%; padding: 0; }
     .library-container { animation: fadeIn 0.2s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .search-bar { display: flex; align-items: center; gap: 10px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 24px; }
@@ -452,6 +838,7 @@ export default function App() {
     .book-action-btn { width: 24px; height: 24px; border-radius: 50%; background: rgba(0,0,0,0.6); border: none; color: white; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .book-action-btn:hover { background: rgba(0,0,0,0.8); }
     .book-action-btn.delete:hover { background: var(--danger); }
+    .book-badge { position: absolute; top: 6px; left: 6px; background: var(--success); color: white; font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 4px; z-index: 3; }
     .book-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .book-author { font-size: 11px; color: var(--text-secondary); }
     .book-list { display: flex; flex-direction: column; gap: 6px; }
@@ -460,7 +847,8 @@ export default function App() {
     .book-list-cover { width: 38px; height: 54px; border-radius: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: white; box-shadow: 0 1px 4px rgba(0,0,0,0.1); overflow: hidden; position: relative; }
     .book-list-cover img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
     .book-list-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-    .book-list-title { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
+    .book-list-title { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; display: flex; align-items: center; gap: 8px; }
+    .book-list-badge { background: var(--success); color: white; font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 3px; }
     .book-list-author { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
     .book-list-meta { display: flex; align-items: center; gap: 10px; }
     .book-list-progress { flex: 1; max-width: 100px; height: 3px; background: var(--bg-tertiary); border-radius: 2px; overflow: hidden; }
@@ -476,6 +864,33 @@ export default function App() {
     .empty-icon { font-size: 44px; margin-bottom: 14px; opacity: 0.5; }
     .empty-text { font-size: 14px; color: var(--text-secondary); margin-bottom: 18px; }
     .empty-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; background: var(--accent); border: none; border-radius: 8px; color: white; font-size: 14px; font-weight: 500; cursor: pointer; }
+    
+    /* Document Reader Styles */
+    .document-reader { display: flex; flex-direction: column; height: calc(100vh - 57px); background: var(--bg-secondary); }
+    .reader-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: var(--bg-primary); border-bottom: 1px solid var(--border); }
+    .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 8px; }
+    .toolbar-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
+    .toolbar-btn:hover:not(:disabled) { background: var(--bg-tertiary); color: var(--text-primary); }
+    .toolbar-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .page-info, .zoom-info { font-size: 13px; color: var(--text-secondary); min-width: 100px; text-align: center; }
+    .zoom-info { min-width: 50px; }
+    .reader-content { flex: 1; overflow: auto; display: flex; justify-content: center; padding: 20px; }
+    
+    /* PDF Viewer Styles */
+    .pdf-viewer { display: flex; flex-direction: column; align-items: center; }
+    .pdf-canvas { max-width: 100%; height: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); background: white; }
+    .pdf-loading, .pdf-error, .epub-loading, .epub-error { display: flex; align-items: center; justify-content: center; height: 300px; font-size: 14px; color: var(--text-secondary); }
+    .pdf-error, .epub-error { color: var(--danger); }
+    
+    /* EPUB Viewer Styles */
+    .epub-viewer { width: 100%; max-width: 800px; display: flex; flex-direction: column; }
+    .epub-content { flex: 1; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.1); min-height: 500px; }
+    .epub-nav { display: flex; justify-content: center; align-items: center; gap: 20px; padding: 16px; }
+    .epub-nav-btn { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 50%; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
+    .epub-nav-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .epub-chapter-info { font-size: 13px; color: var(--text-secondary); }
+    
+    /* Sample content reader */
     .reader-container { animation: fadeIn 0.2s ease; max-width: 640px; margin: 0 auto; }
     .doc-header { margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
     .doc-title { font-size: 24px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.02em; }
@@ -487,6 +902,13 @@ export default function App() {
     .section { margin-bottom: 24px; }
     .section-heading { font-size: 17px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; }
     .paragraph { font-size: 15px; color: var(--text-primary); margin-bottom: 12px; line-height: 1.7; }
+    
+    /* No file data message */
+    .no-file-message { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; text-align: center; padding: 20px; }
+    .no-file-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+    .no-file-text { font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; }
+    .no-file-subtext { font-size: 12px; color: var(--text-tertiary); }
+    
     .study-container { animation: fadeIn 0.2s ease; max-width: 640px; margin: 0 auto; }
     .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 24px; }
     .stat-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; }
@@ -532,6 +954,9 @@ export default function App() {
     .secondary-btn { width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 14px; font-weight: 500; cursor: pointer; }
     .close-quiz { position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 22px; color: var(--text-tertiary); cursor: pointer; }
     .upload-error { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--danger); color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px; z-index: 500; }
+    .upload-progress { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--bg-primary); border: 1px solid var(--border); padding: 12px 20px; border-radius: 8px; font-size: 14px; z-index: 500; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    .upload-progress-bar { width: 100px; height: 4px; background: var(--bg-tertiary); border-radius: 2px; overflow: hidden; }
+    .upload-progress-fill { height: 100%; background: var(--accent); transition: width 0.2s; }
     .add-menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 350; display: flex; align-items: flex-end; justify-content: center; }
     .add-menu { background: var(--bg-primary); border-top-left-radius: 14px; border-top-right-radius: 14px; width: 100%; max-width: 420px; padding: 18px; animation: slideUp 0.2s ease; }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -585,7 +1010,7 @@ export default function App() {
             <button className={`nav-item ${activeTab === 'reader' ? 'active' : ''}`} onClick={() => handleTabChange('reader')}><ReadIcon active={activeTab === 'reader'} />Read</button>
             <button className={`nav-item ${activeTab === 'study' ? 'active' : ''}`} onClick={() => handleTabChange('study')}><StudyIcon active={activeTab === 'study'} />Study</button>
           </nav>
-          <div className="sidebar-footer"><div className="sidebar-footer-text">Kapul Learning Systems</div></div>
+          <div className="sidebar-footer"><div className="sidebar-footer-text">Kapul Learning Society</div></div>
         </aside>
         <header className="header">
           <div className="header-left">
@@ -594,7 +1019,7 @@ export default function App() {
           </div>
           <div className="header-actions">{activeTab === 'library' && <button className="icon-btn accent" onClick={() => setShowAddMenu(true)}><PlusIcon /></button>}</div>
         </header>
-        <main className="main">
+        <main className={`main ${activeTab === 'reader' && currentBook?.fileData ? 'reader-mode' : ''}`}>
           {activeTab === 'library' && (
             <div className="library-container">
               <div className="search-bar"><SearchIcon /><input type="text" className="search-input" placeholder="Search books..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} /></div>
@@ -648,6 +1073,7 @@ export default function App() {
                           )}
                         </div>
                         {book.progress > 0 && <div className="book-progress-line"><div className="book-progress-line-fill" style={{width: `${book.progress}%`}} /></div>}
+                        {hasFileData(book) && <div className="book-badge">Ready</div>}
                         <div className="book-actions">
                           <button className="book-action-btn" onClick={(e) => openImageInput(book.id, e)} title="Add cover image"><ImageIcon /></button>
                           <button className="book-action-btn delete" onClick={(e) => deleteBook(book.id, e)} title="Delete">×</button>
@@ -666,7 +1092,10 @@ export default function App() {
                         {hasValidCover(book) ? <BookCoverImage src={book.coverImage} alt={book.title} /> : book.title.charAt(0)}
                       </div>
                       <div className="book-list-info">
-                        <div className="book-list-title">{book.title}</div>
+                        <div className="book-list-title">
+                          {book.title}
+                          {hasFileData(book) && <span className="book-list-badge">Ready</span>}
+                        </div>
                         <div className="book-list-author">{book.author}</div>
                         <div className="book-list-meta"><div className="book-list-progress"><div className="book-list-progress-fill" style={{width: `${book.progress}%`}} /></div><span className="book-list-percent">{book.progress}%</span><span className="book-list-time">{book.lastRead}</span></div>
                       </div>
@@ -681,14 +1110,34 @@ export default function App() {
             </div>
           )}
           {activeTab === 'reader' && (
-            <div className="reader-container" onMouseUp={handleSelect} onTouchEnd={handleSelect}>
-              <div className="doc-header">
-                <h1 className="doc-title">{currentBook?.title || sampleContent.title}</h1>
-                <p className="doc-subtitle">{sampleContent.chapter}</p>
-                <div className="progress-row"><div className="progress-bar"><div className="progress-fill" style={{width: `${currentBook?.progress || 35}%`}} /></div><span className="progress-text">{currentBook?.progress || 35}%</span></div>
-              </div>
-              {sampleContent.sections.map(section => (<div key={section.id} className="section"><h2 className="section-heading">{section.heading}</h2>{section.content.split('\n\n').map((para, i) => (<p key={i} className="paragraph">{para}</p>))}</div>))}
-            </div>
+            <>
+              {currentBook?.fileData ? (
+                <DocumentReader book={currentBook} onUpdateBook={updateBook} />
+              ) : (
+                <div className="reader-container" onMouseUp={handleSelect} onTouchEnd={handleSelect}>
+                  {!currentBook ? (
+                    <div className="no-file-message">
+                      <div className="no-file-icon">📖</div>
+                      <div className="no-file-text">No book selected</div>
+                      <div className="no-file-subtext">Select a book from your library to start reading</div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="doc-header">
+                        <h1 className="doc-title">{currentBook?.title || sampleContent.title}</h1>
+                        <p className="doc-subtitle">{sampleContent.chapter}</p>
+                        <div className="progress-row"><div className="progress-bar"><div className="progress-fill" style={{width: `${currentBook?.progress || 35}%`}} /></div><span className="progress-text">{currentBook?.progress || 35}%</span></div>
+                      </div>
+                      <div className="no-file-message" style={{ height: 'auto', paddingTop: 0 }}>
+                        <div className="no-file-text">This book doesn't have file data</div>
+                        <div className="no-file-subtext">Upload a PDF or EPUB to read the actual content. Showing sample content below.</div>
+                      </div>
+                      {sampleContent.sections.map(section => (<div key={section.id} className="section"><h2 className="section-heading">{section.heading}</h2>{section.content.split('\n\n').map((para, i) => (<p key={i} className="paragraph">{para}</p>))}</div>))}
+                    </>
+                  )}
+                </div>
+              )}
+            </>
           )}
           {activeTab === 'study' && (
             <div className="study-container">
@@ -725,7 +1174,7 @@ export default function App() {
             </div>
           )}
         </main>
-        {activeTab === 'reader' && !showAI && (<div className="hint-bar"><span className="hint-text">Select text to explain</span><button className="quiz-btn" onClick={startQuiz}>Quiz me</button></div>)}
+        {activeTab === 'reader' && !showAI && !currentBook?.fileData && (<div className="hint-bar"><span className="hint-text">Select text to explain</span><button className="quiz-btn" onClick={startQuiz}>Quiz me</button></div>)}
         <div className={`ai-panel ${showAI ? 'open' : ''}`}>
           <div className="ai-header"><span className="ai-title"><KLSLogo size={20} />Kapul AI</span><button className="close-btn" onClick={() => setShowAI(false)}><CloseIcon /></button></div>
           {selectedText && <div className="selected-box"><div className="selected-label">Selected text</div><div className="selected-text">{selectedText.slice(0, 100)}{selectedText.length > 100 ? '...' : ''}</div></div>}
@@ -779,6 +1228,15 @@ export default function App() {
               </div>
               <button className="close-quiz" onClick={() => { setShowImageInput(null); setImageUrl('') }}>×</button>
             </div>
+          </div>
+        )}
+        {isUploading && (
+          <div className="upload-progress">
+            <span>Uploading...</span>
+            <div className="upload-progress-bar">
+              <div className="upload-progress-fill" style={{ width: `${uploadProgress}%` }} />
+            </div>
+            <span>{uploadProgress}%</span>
           </div>
         )}
         {uploadError && <div className="upload-error">{uploadError}</div>}
