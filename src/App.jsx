@@ -44,13 +44,72 @@ Problem 3: If y = (2x + 1) / (x - 1), find dy/dx`
   ]
 }
 
+// Books with optional coverImage URL - use Google Drive direct links
+// To get direct link from Google Drive: 
+// 1. Share image as "Anyone with link"
+// 2. Get file ID from the share link
+// 3. Use format: https://drive.google.com/uc?export=view&id=YOUR_FILE_ID
 const initialBooks = [
-  { id: 1, title: "Calculus", author: "James Stewart", progress: 35, color: "#DA7756", format: "pdf", lastRead: "2 hours ago" },
-  { id: 2, title: "Organic Chemistry", author: "David Klein", progress: 12, color: "#5A9A6E", format: "pdf", lastRead: "Yesterday" },
-  { id: 3, title: "Physics", author: "Halliday & Resnick", progress: 67, color: "#6B8ACE", format: "epub", lastRead: "3 days ago" },
-  { id: 4, title: "Linear Algebra", author: "Gilbert Strang", progress: 8, color: "#9B7AC7", format: "pdf", lastRead: "1 week ago" },
-  { id: 5, title: "Biology", author: "Campbell", progress: 22, color: "#C97A8B", format: "pdf", lastRead: "2 weeks ago" },
-  { id: 6, title: "Chemistry", author: "Zumdahl", progress: 0, color: "#5AADAD", format: "epub", lastRead: "New" }
+  { 
+    id: 1, 
+    title: "Calculus", 
+    author: "James Stewart", 
+    progress: 35, 
+    color: "#DA7756", 
+    format: "pdf", 
+    lastRead: "2 hours ago",
+    coverImage: "https:drive.google.com/uc?export=view&id=1xqiwbEE4NiiwfC6JwvzIwuZip4quOQYR" // Add your Google Drive image URL here
+  },
+  { 
+    id: 2, 
+    title: "Organic Chemistry", 
+    author: "David Klein", 
+    progress: 12, 
+    color: "#5A9A6E", 
+    format: "pdf", 
+    lastRead: "Yesterday",
+    coverImage: "https://drive.google.com/uc?export=view&id=1GrQEXdvjJcKIpr0eoMpEbNCZSnXOyHmP"
+  },
+  { 
+    id: 3, 
+    title: "Physics", 
+    author: "Halliday & Resnick", 
+    progress: 67, 
+    color: "#6B8ACE", 
+    format: "epub", 
+    lastRead: "3 days ago",
+    coverImage: "https://drive.google.com/uc?export=view&id=1q2KO9rVlwwYD93uFtbu474tY2QThvlWS"
+  },
+  { 
+    id: 4, 
+    title: "Linear Algebra", 
+    author: "Gilbert Strang", 
+    progress: 8, 
+    color: "#9B7AC7", 
+    format: "pdf", 
+    lastRead: "1 week ago",
+    coverImage: "https://drive.google.com/uc?export=view&id=1CVu95jSVd1N5L0nhRFsuj922qDBQ0ehl"
+  },
+  { 
+    id: 5, 
+    title: "Biology", 
+    author: "Campbell", 
+    progress: 22, 
+    color: "#C97A8B", 
+    format: "pdf", 
+    lastRead: "2 weeks ago",
+    coverImage: "https://drive.google.com/uc?export=view&id=1wjqNt-P2YH9moUBYR7if2SD1cCZTEIy3"
+  },
+  { 
+    id: 6, 
+    title: "Chemistry", 
+    author: "Zumdahl", 
+    progress: 0, 
+    color: "#5AADAD", 
+    format: "epub", 
+    lastRead: "New",
+    coverImage: "https://drive.google.com/uc?export=view&id=1Ksix4GwUYu7SE121wi_bJNEUz5WFzN1M"
+  }
 ]
 
 const getAIResponse = (type, text) => {
@@ -93,6 +152,66 @@ function KLSLogo({ size = 32 }) {
   )
 }
 
+// Book Cover Component - shows image if available, fallback to color
+function BookCover({ book, size = "normal" }) {
+  const [imageError, setImageError] = useState(false)
+  const hasImage = book.coverImage && !imageError
+
+  const sizeStyles = {
+    small: { width: '38px', height: '54px', fontSize: '15px', titleSize: '0px' },
+    medium: { width: '44px', height: '62px', fontSize: '18px', titleSize: '0px' },
+    normal: { width: '100%', height: '100%', fontSize: '28px', titleSize: '9px' }
+  }
+  const s = sizeStyles[size] || sizeStyles.normal
+
+  if (hasImage) {
+    return (
+      <div className="book-cover-image-wrap" style={size !== 'normal' ? { width: s.width, height: s.height } : {}}>
+        <img 
+          src={book.coverImage} 
+          alt={book.title}
+          className="book-cover-image"
+          onError={() => setImageError(true)}
+        />
+        {book.progress > 0 && size === 'normal' && (
+          <div className="book-progress-line">
+            <div className="book-progress-line-fill" style={{width: `${book.progress}%`}} />
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // Fallback to color cover
+  if (size === 'normal') {
+    return (
+      <div className="book-cover" style={{background: book.color}}>
+        <span className="book-initial">{book.title.charAt(0)}</span>
+        <span className="book-cover-title">{book.title}</span>
+        {book.progress > 0 && (
+          <div className="book-progress-line">
+            <div className="book-progress-line-fill" style={{width: `${book.progress}%`}} />
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div 
+      className="book-cover-small" 
+      style={{
+        background: book.color, 
+        width: s.width, 
+        height: s.height, 
+        fontSize: s.fontSize
+      }}
+    >
+      {book.title.charAt(0)}
+    </div>
+  )
+}
+
 function MenuIcon() {
   return (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>)
 }
@@ -129,6 +248,10 @@ function CloseIcon() {
   return (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>)
 }
 
+function ImageIcon() {
+  return (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>)
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('library')
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -147,6 +270,8 @@ export default function App() {
   const [uploadError, setUploadError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentBook, setCurrentBook] = useState(null)
+  const [showImageInput, setShowImageInput] = useState(null) // book id for adding cover
+  const [imageUrl, setImageUrl] = useState('')
   
   const fileInputRef = useRef(null)
   const sidebarRef = useRef(null)
@@ -177,6 +302,7 @@ export default function App() {
     setIsLoading(false)
   }
   const startQuiz = () => { setQuizQuestions(getAIResponse('quiz', '')); setQuizIndex(0); setShowAnswer(false); setQuizActive(true) }
+  
   const handleFileUpload = (event) => {
     const file = event.target.files[0]
     if (!file) return
@@ -186,15 +312,39 @@ export default function App() {
     if (!isPdf && !isEpub) { setUploadError('Only PDF and EPUB files are supported'); setTimeout(() => setUploadError(''), 3000); return }
     const colors = ['#DA7756', '#5A9A6E', '#6B8ACE', '#9B7AC7', '#C97A8B', '#5AADAD', '#D4915D', '#7A8C5A']
     const newBook = {
-      id: Date.now(), title: file.name.replace(/\.(pdf|epub)$/i, ''), author: 'Unknown Author', progress: 0,
-      color: colors[Math.floor(Math.random() * colors.length)], format: isPdf ? 'pdf' : 'epub', lastRead: 'New'
+      id: Date.now(), 
+      title: file.name.replace(/\.(pdf|epub)$/i, ''), 
+      author: 'Unknown Author', 
+      progress: 0,
+      color: colors[Math.floor(Math.random() * colors.length)], 
+      format: isPdf ? 'pdf' : 'epub', 
+      lastRead: 'New',
+      coverImage: ''
     }
     setBooks([newBook, ...books]); setShowAddMenu(false); setUploadError('')
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
+
   const triggerFileUpload = () => { if (fileInputRef.current) fileInputRef.current.click(); setShowAddMenu(false) }
   const deleteBook = (bookId, e) => { e.stopPropagation(); if (confirm('Remove this book?')) setBooks(books.filter(b => b.id !== bookId)) }
   const openBook = (book) => { setCurrentBook(book); setActiveTab('reader'); setSidebarOpen(false) }
+
+  // Add cover image to a book
+  const addCoverImage = (bookId) => {
+    if (!imageUrl.trim()) return
+    setBooks(books.map(b => b.id === bookId ? { ...b, coverImage: imageUrl.trim() } : b))
+    setShowImageInput(null)
+    setImageUrl('')
+  }
+
+  // Open image input modal
+  const openImageInput = (bookId, e) => {
+    e.stopPropagation()
+    setShowImageInput(bookId)
+    const book = books.find(b => b.id === bookId)
+    setImageUrl(book?.coverImage || '')
+  }
+
   const filteredBooks = books.filter(book => book.title.toLowerCase().includes(searchQuery.toLowerCase()) || book.author.toLowerCase().includes(searchQuery.toLowerCase()))
   const recentBooks = [...books].filter(b => b.progress > 0).sort((a, b) => b.progress - a.progress).slice(0, 4)
 
@@ -259,7 +409,8 @@ export default function App() {
     .continue-scroll::-webkit-scrollbar { display: none; }
     .continue-card { flex-shrink: 0; width: 240px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; padding: 12px; display: flex; gap: 12px; cursor: pointer; transition: all 0.15s; }
     .continue-card:hover { border-color: var(--border-light); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-    .continue-cover { width: 44px; height: 62px; border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+    .continue-cover { width: 44px; height: 62px; border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.12); overflow: hidden; }
+    .continue-cover img { width: 100%; height: 100%; object-fit: cover; }
     .continue-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
     .continue-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .continue-author { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; }
@@ -279,19 +430,26 @@ export default function App() {
     .book-cover-wrap { position: relative; aspect-ratio: 2/3; margin-bottom: 8px; }
     .book-cover { width: 100%; height: 100%; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
     .book-cover::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 50%, rgba(0,0,0,0.08) 100%); }
+    .book-cover-image-wrap { width: 100%; height: 100%; border-radius: 4px; overflow: hidden; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .book-cover-image { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .book-cover-small { border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 600; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.12); overflow: hidden; }
+    .book-cover-small img { width: 100%; height: 100%; object-fit: cover; }
     .book-initial { font-size: 28px; font-weight: 600; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.15); position: relative; z-index: 1; }
     .book-cover-title { font-size: 9px; font-weight: 500; color: rgba(255,255,255,0.85); text-align: center; margin-top: 4px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; position: relative; z-index: 1; }
     .book-progress-line { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: rgba(0,0,0,0.25); }
     .book-progress-line-fill { height: 100%; background: white; }
-    .book-delete { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.5); border: none; color: white; font-size: 13px; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 2; }
-    .book-card:hover .book-delete { display: flex; }
-    .book-delete:hover { background: var(--danger); }
+    .book-actions { position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; }
+    .book-card:hover .book-actions { opacity: 1; }
+    .book-action-btn { width: 24px; height: 24px; border-radius: 50%; background: rgba(0,0,0,0.5); border: none; color: white; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .book-action-btn:hover { background: rgba(0,0,0,0.7); }
+    .book-action-btn.delete:hover { background: var(--danger); }
     .book-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .book-author { font-size: 11px; color: var(--text-secondary); }
     .book-list { display: flex; flex-direction: column; gap: 6px; }
     .book-list-item { display: flex; gap: 12px; padding: 10px 12px; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.15s; position: relative; }
     .book-list-item:hover { border-color: var(--border-light); background: var(--bg-secondary); }
-    .book-list-cover { width: 38px; height: 54px; border-radius: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: white; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .book-list-cover { width: 38px; height: 54px; border-radius: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: white; box-shadow: 0 1px 4px rgba(0,0,0,0.1); overflow: hidden; }
+    .book-list-cover img { width: 100%; height: 100%; object-fit: cover; }
     .book-list-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
     .book-list-title { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
     .book-list-author { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
@@ -300,9 +458,11 @@ export default function App() {
     .book-list-progress-fill { height: 100%; background: var(--accent); }
     .book-list-percent { font-size: 11px; color: var(--text-tertiary); }
     .book-list-time { font-size: 11px; color: var(--text-tertiary); }
-    .book-list-delete { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; border-radius: 6px; background: var(--bg-tertiary); border: none; color: var(--text-secondary); cursor: pointer; display: none; align-items: center; justify-content: center; }
-    .book-list-item:hover .book-list-delete { display: flex; }
-    .book-list-delete:hover { background: var(--danger); color: white; }
+    .book-list-actions { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 4px; opacity: 0; transition: opacity 0.15s; }
+    .book-list-item:hover .book-list-actions { opacity: 1; }
+    .book-list-action-btn { width: 28px; height: 28px; border-radius: 6px; background: var(--bg-tertiary); border: none; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .book-list-action-btn:hover { background: var(--border); color: var(--text-primary); }
+    .book-list-action-btn.delete:hover { background: var(--danger); color: white; }
     .empty-state { text-align: center; padding: 50px 20px; }
     .empty-icon { font-size: 44px; margin-bottom: 14px; opacity: 0.5; }
     .empty-text { font-size: 14px; color: var(--text-secondary); margin-bottom: 18px; }
@@ -345,7 +505,7 @@ export default function App() {
     .hint-bar { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; align-items: center; background: var(--bg-primary); border: 1px solid var(--border); padding: 8px 14px; border-radius: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); z-index: 150; }
     .hint-text { font-size: 13px; color: var(--text-secondary); }
     .quiz-btn { padding: 6px 14px; background: var(--accent); border: none; border-radius: 16px; color: white; font-size: 13px; font-weight: 500; cursor: pointer; }
-    .quiz-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 400; }
+    .quiz-overlay, .image-input-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 400; }
     .quiz-card { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 14px; padding: 22px; width: 100%; max-width: 380px; position: relative; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
     .quiz-header { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; }
     .quiz-progress { color: var(--accent); font-weight: 600; }
@@ -370,6 +530,15 @@ export default function App() {
     .add-menu-item-title { font-size: 14px; font-weight: 500; color: var(--text-primary); }
     .add-menu-item-desc { font-size: 12px; color: var(--text-secondary); }
     .file-input { display: none; }
+    .image-input-card { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 14px; padding: 22px; width: 100%; max-width: 400px; position: relative; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+    .image-input-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .image-input-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+    .image-url-input { width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; font-size: 14px; color: var(--text-primary); margin-bottom: 12px; outline: none; }
+    .image-url-input:focus { border-color: var(--accent); }
+    .image-url-input::placeholder { color: var(--text-tertiary); }
+    .image-input-help { font-size: 11px; color: var(--text-tertiary); margin-bottom: 16px; line-height: 1.5; }
+    .image-input-buttons { display: flex; gap: 8px; }
+    .image-input-buttons button { flex: 1; }
     @media (min-width: 768px) {
       .main { padding: 28px 24px; }
       .book-grid { grid-template-columns: repeat(4, 1fr); gap: 18px; }
@@ -399,7 +568,7 @@ export default function App() {
             <button className={`nav-item ${activeTab === 'reader' ? 'active' : ''}`} onClick={() => handleTabChange('reader')}><ReadIcon active={activeTab === 'reader'} />Read</button>
             <button className={`nav-item ${activeTab === 'study' ? 'active' : ''}`} onClick={() => handleTabChange('study')}><StudyIcon active={activeTab === 'study'} />Study</button>
           </nav>
-          <div className="sidebar-footer"><div className="sidebar-footer-text">Kapul Learning Systems</div></div>
+          <div className="sidebar-footer"><div className="sidebar-footer-text">Kapul Learning Society</div></div>
         </aside>
         <header className="header">
           <div className="header-left">
@@ -418,7 +587,9 @@ export default function App() {
                   <div className="continue-scroll">
                     {recentBooks.map(book => (
                       <div key={book.id} className="continue-card" onClick={() => openBook(book)}>
-                        <div className="continue-cover" style={{background: book.color}}>{book.title.charAt(0)}</div>
+                        <div className="continue-cover" style={{background: book.coverImage ? 'transparent' : book.color}}>
+                          {book.coverImage ? <img src={book.coverImage} alt={book.title} /> : book.title.charAt(0)}
+                        </div>
                         <div className="continue-info">
                           <div className="continue-title">{book.title}</div>
                           <div className="continue-author">{book.author}</div>
@@ -442,19 +613,29 @@ export default function App() {
                 <div className="empty-state">
                   <div className="empty-icon">📚</div>
                   <div className="empty-text">{searchQuery ? 'No books found' : 'Your library is empty'}</div>
-                  {!searchQuery && <button className="empty-btn" onClick={() => setShowAddMenu(true)}><PlusIcon /> Add your first book or document</button>}
+                  {!searchQuery && <button className="empty-btn" onClick={() => setShowAddMenu(true)}><PlusIcon /> Add your first book</button>}
                 </div>
               ) : viewMode === 'grid' ? (
                 <div className="book-grid">
                   {filteredBooks.map(book => (
                     <div key={book.id} className="book-card" onClick={() => openBook(book)}>
                       <div className="book-cover-wrap">
-                        <div className="book-cover" style={{background: book.color}}>
-                          <span className="book-initial">{book.title.charAt(0)}</span>
-                          <span className="book-cover-title">{book.title}</span>
-                          {book.progress > 0 && <div className="book-progress-line"><div className="book-progress-line-fill" style={{width: `${book.progress}%`}} /></div>}
+                        {book.coverImage ? (
+                          <div className="book-cover-image-wrap">
+                            <img src={book.coverImage} alt={book.title} className="book-cover-image" />
+                            {book.progress > 0 && <div className="book-progress-line"><div className="book-progress-line-fill" style={{width: `${book.progress}%`}} /></div>}
+                          </div>
+                        ) : (
+                          <div className="book-cover" style={{background: book.color}}>
+                            <span className="book-initial">{book.title.charAt(0)}</span>
+                            <span className="book-cover-title">{book.title}</span>
+                            {book.progress > 0 && <div className="book-progress-line"><div className="book-progress-line-fill" style={{width: `${book.progress}%`}} /></div>}
+                          </div>
+                        )}
+                        <div className="book-actions">
+                          <button className="book-action-btn" onClick={(e) => openImageInput(book.id, e)} title="Add cover image"><ImageIcon /></button>
+                          <button className="book-action-btn delete" onClick={(e) => deleteBook(book.id, e)} title="Delete">×</button>
                         </div>
-                        <button className="book-delete" onClick={(e) => deleteBook(book.id, e)}>×</button>
                       </div>
                       <div className="book-title">{book.title}</div>
                       <div className="book-author">{book.author}</div>
@@ -465,13 +646,18 @@ export default function App() {
                 <div className="book-list">
                   {filteredBooks.map(book => (
                     <div key={book.id} className="book-list-item" onClick={() => openBook(book)}>
-                      <div className="book-list-cover" style={{background: book.color}}>{book.title.charAt(0)}</div>
+                      <div className="book-list-cover" style={{background: book.coverImage ? 'transparent' : book.color}}>
+                        {book.coverImage ? <img src={book.coverImage} alt={book.title} /> : book.title.charAt(0)}
+                      </div>
                       <div className="book-list-info">
                         <div className="book-list-title">{book.title}</div>
                         <div className="book-list-author">{book.author}</div>
                         <div className="book-list-meta"><div className="book-list-progress"><div className="book-list-progress-fill" style={{width: `${book.progress}%`}} /></div><span className="book-list-percent">{book.progress}%</span><span className="book-list-time">{book.lastRead}</span></div>
                       </div>
-                      <button className="book-list-delete" onClick={(e) => deleteBook(book.id, e)}>×</button>
+                      <div className="book-list-actions">
+                        <button className="book-list-action-btn" onClick={(e) => openImageInput(book.id, e)} title="Add cover image"><ImageIcon /></button>
+                        <button className="book-list-action-btn delete" onClick={(e) => deleteBook(book.id, e)} title="Delete">×</button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -519,8 +705,32 @@ export default function App() {
           <div className="add-menu-overlay" onClick={() => setShowAddMenu(false)}>
             <div className="add-menu" onClick={e => e.stopPropagation()}>
               <div className="add-menu-header"><span className="add-menu-title">Add to Library</span><button className="close-btn" onClick={() => setShowAddMenu(false)}><CloseIcon /></button></div>
-              <div className="add-menu-item" onClick={triggerFileUpload}><div className="add-menu-icon pdf">📕</div><div className="add-menu-text"><div className="add-menu-item-title">PDF Book or Document</div><div className="add-menu-item-desc">Upload a PDF file</div></div></div>
-              <div className="add-menu-item" onClick={triggerFileUpload}><div className="add-menu-icon epub">📗</div><div className="add-menu-text"><div className="add-menu-item-title">EPUB Book or Document</div><div className="add-menu-item-desc">Upload an EPUB file</div></div></div>
+              <div className="add-menu-item" onClick={triggerFileUpload}><div className="add-menu-icon pdf">📕</div><div className="add-menu-text"><div className="add-menu-item-title">PDF Document</div><div className="add-menu-item-desc">Upload a PDF file</div></div></div>
+              <div className="add-menu-item" onClick={triggerFileUpload}><div className="add-menu-icon epub">📗</div><div className="add-menu-text"><div className="add-menu-item-title">EPUB Book</div><div className="add-menu-item-desc">Upload an EPUB file</div></div></div>
+            </div>
+          </div>
+        )}
+        {showImageInput !== null && (
+          <div className="image-input-overlay" onClick={() => { setShowImageInput(null); setImageUrl('') }}>
+            <div className="image-input-card" onClick={e => e.stopPropagation()}>
+              <div className="image-input-title">Add Cover Image</div>
+              <div className="image-input-subtitle">Paste a direct image URL from Google Drive or any image host</div>
+              <input 
+                type="text" 
+                className="image-url-input" 
+                placeholder="https://drive.google.com/uc?export=view&id=..." 
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                autoFocus
+              />
+              <div className="image-input-help">
+                For Google Drive: Share image → Get link → Replace "/file/d/FILE_ID/view" with "/uc?export=view&id=FILE_ID"
+              </div>
+              <div className="image-input-buttons">
+                <button className="secondary-btn" onClick={() => { setShowImageInput(null); setImageUrl('') }}>Cancel</button>
+                <button className="primary-btn" onClick={() => addCoverImage(showImageInput)}>Save</button>
+              </div>
+              <button className="close-quiz" onClick={() => { setShowImageInput(null); setImageUrl('') }}>×</button>
             </div>
           </div>
         )}
