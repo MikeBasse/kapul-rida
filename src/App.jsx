@@ -83,20 +83,12 @@ const getAIResponse = (type, text) => {
   return "Select text to get an explanation."
 }
 
-function CuscusLogo({ size = 32 }) {
+// KLS Logo - styled like Anthropic's 'A' logo
+function KLSLogo({ size = 32 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="50" cy="55" rx="35" ry="32" fill="#C9A67A"/>
-      <ellipse cx="20" cy="30" rx="12" ry="14" fill="#C9A67A"/>
-      <ellipse cx="20" cy="30" rx="8" ry="10" fill="#E8B4B8"/>
-      <ellipse cx="80" cy="30" rx="12" ry="14" fill="#C9A67A"/>
-      <ellipse cx="80" cy="30" rx="8" ry="10" fill="#E8B4B8"/>
-      <circle cx="38" cy="52" r="11" fill="#2C1810"/>
-      <circle cx="62" cy="52" r="11" fill="#2C1810"/>
-      <circle cx="41" cy="49" r="4" fill="#FFFFFF"/>
-      <circle cx="65" cy="49" r="4" fill="#FFFFFF"/>
-      <ellipse cx="50" cy="65" rx="5" ry="4" fill="#6B4423"/>
-      <path d="M45 72 Q50 77 55 72" stroke="#6B4423" strokeWidth="2" fill="none" strokeLinecap="round"/>
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="40" height="40" rx="8" fill="#C35A37"/>
+      <text x="50%" y="54%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="14" fontWeight="600" fontFamily="-apple-system, BlinkMacSystemFont, sans-serif">KLS</text>
     </svg>
   )
 }
@@ -136,7 +128,6 @@ function SearchIcon() {
 function CloseIcon() {
   return (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>)
 }
-
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('library')
@@ -232,7 +223,8 @@ export default function App() {
     .header-left { display: flex; align-items: center; gap: 10px; }
     .menu-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: transparent; border: none; border-radius: 8px; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
     .menu-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
-    .logo { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 15px; color: var(--text-primary); }
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 15px; color: var(--text-primary); }
+    .logo-text { font-weight: 500; letter-spacing: -0.01em; }
     .header-actions { display: flex; gap: 8px; }
     .icon-btn { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
     .icon-btn:hover { background: var(--bg-tertiary); color: var(--text-primary); }
@@ -243,7 +235,7 @@ export default function App() {
     .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 256px; background: var(--bg-primary); border-right: 1px solid var(--border); z-index: 300; transform: translateX(-100%); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; }
     .sidebar.open { transform: translateX(0); }
     .sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 14px 12px; border-bottom: 1px solid var(--border); }
-    .sidebar-logo { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 15px; }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 15px; }
     .sidebar-close { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: transparent; border: none; border-radius: 6px; color: var(--text-secondary); cursor: pointer; }
     .sidebar-close:hover { background: var(--bg-tertiary); }
     .sidebar-nav { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 2px; }
@@ -399,7 +391,7 @@ export default function App() {
         <div className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)} />
         <aside ref={sidebarRef} className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="sidebar-header">
-            <div className="sidebar-logo"><CuscusLogo size={24} /><span>Kapul Reader</span></div>
+            <div className="sidebar-logo"><KLSLogo size={28} /><span>Kapul Reader</span></div>
             <button className="sidebar-close" onClick={() => setSidebarOpen(false)}><CloseIcon /></button>
           </div>
           <nav className="sidebar-nav">
@@ -407,12 +399,12 @@ export default function App() {
             <button className={`nav-item ${activeTab === 'reader' ? 'active' : ''}`} onClick={() => handleTabChange('reader')}><ReadIcon active={activeTab === 'reader'} />Read</button>
             <button className={`nav-item ${activeTab === 'study' ? 'active' : ''}`} onClick={() => handleTabChange('study')}><StudyIcon active={activeTab === 'study'} />Study</button>
           </nav>
-          <div className="sidebar-footer"><div className="sidebar-footer-text">Kapul Reading Group</div></div>
+          <div className="sidebar-footer"><div className="sidebar-footer-text">Kapul Learning Society</div></div>
         </aside>
         <header className="header">
           <div className="header-left">
             <button className="menu-btn" onClick={() => setSidebarOpen(true)}><MenuIcon /></button>
-            <div className="logo"><CuscusLogo size={26} /><span>Kapul Reader</span></div>
+            <div className="logo"><KLSLogo size={32} /><span className="logo-text">Kapul Reader</span></div>
           </div>
           <div className="header-actions">{activeTab === 'library' && <button className="icon-btn accent" onClick={() => setShowAddMenu(true)}><PlusIcon /></button>}</div>
         </header>
@@ -508,7 +500,7 @@ export default function App() {
         </main>
         {activeTab === 'reader' && !showAI && (<div className="hint-bar"><span className="hint-text">Select text to explain</span><button className="quiz-btn" onClick={startQuiz}>Quiz me</button></div>)}
         <div className={`ai-panel ${showAI ? 'open' : ''}`}>
-          <div className="ai-header"><span className="ai-title"><CuscusLogo size={20} />Kapul AI</span><button className="close-btn" onClick={() => setShowAI(false)}><CloseIcon /></button></div>
+          <div className="ai-header"><span className="ai-title"><KLSLogo size={20} />Kapul AI</span><button className="close-btn" onClick={() => setShowAI(false)}><CloseIcon /></button></div>
           {selectedText && <div className="selected-box"><div className="selected-label">Selected text</div><div className="selected-text">{selectedText.slice(0, 100)}{selectedText.length > 100 ? '...' : ''}</div></div>}
           <div className="ai-actions"><button className="ai-btn" onClick={() => handleAI('explain')}>Explain</button><button className="ai-btn" onClick={() => handleAI('solve')}>Solve</button><button className="ai-btn" onClick={() => setHighlights([...highlights, selectedText])}>Save</button></div>
           {isLoading ? <div className="loading">Thinking...</div> : aiResponse && <div className="ai-response">{aiResponse}</div>}
