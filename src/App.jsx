@@ -1010,7 +1010,7 @@ export default function App() {
             <button className={`nav-item ${activeTab === 'reader' ? 'active' : ''}`} onClick={() => handleTabChange('reader')}><ReadIcon active={activeTab === 'reader'} />Read</button>
             <button className={`nav-item ${activeTab === 'study' ? 'active' : ''}`} onClick={() => handleTabChange('study')}><StudyIcon active={activeTab === 'study'} />Study</button>
           </nav>
-          <div className="sidebar-footer"><div className="sidebar-footer-text">Kapul Learning Society</div></div>
+          <div className="sidebar-footer"><div className="sidebar-footer-text">Kapul Learning System</div></div>
         </aside>
         <header className="header">
           <div className="header-left">
