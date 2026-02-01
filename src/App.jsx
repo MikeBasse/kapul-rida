@@ -497,6 +497,13 @@ export default function App() {
     .card-item { background: var(--bg-primary); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 14px; color: var(--text-primary); cursor: pointer; transition: all 0.15s; }
     .card-item:hover { border-color: var(--border-light); background: var(--bg-secondary); }
     .highlight-item { background: var(--accent-bg); border-left: 3px solid var(--accent); padding: 10px 14px; margin-bottom: 6px; border-radius: 0 8px 8px 0; font-size: 14px; color: var(--text-primary); }
+    .summary-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 24px; }
+    .summary-card p { font-size: 14px; line-height: 1.7; color: var(--text-primary); margin-bottom: 12px; }
+    .summary-card p:last-child { margin-bottom: 0; }
+    .summary-card strong { color: var(--text-primary); font-weight: 600; }
+    .summary-card ul { margin: 0 0 12px 0; padding-left: 20px; }
+    .summary-card li { font-size: 14px; line-height: 1.6; color: var(--text-primary); margin-bottom: 6px; }
+    .summary-card li:last-child { margin-bottom: 0; }
     .ai-panel { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-primary); border-top: 1px solid var(--border); padding: 16px; transform: translateY(100%); transition: transform 0.25s ease; max-height: 55vh; overflow-y: auto; z-index: 200; box-shadow: 0 -4px 16px rgba(0,0,0,0.06); }
     .ai-panel.open { transform: translateY(0); }
     .ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -578,7 +585,7 @@ export default function App() {
             <button className={`nav-item ${activeTab === 'reader' ? 'active' : ''}`} onClick={() => handleTabChange('reader')}><ReadIcon active={activeTab === 'reader'} />Read</button>
             <button className={`nav-item ${activeTab === 'study' ? 'active' : ''}`} onClick={() => handleTabChange('study')}><StudyIcon active={activeTab === 'study'} />Study</button>
           </nav>
-          <div className="sidebar-footer"><div className="sidebar-footer-text">Kapul Learning Systems</div></div>
+          <div className="sidebar-footer"><div className="sidebar-footer-text">Kapul Learning Society</div></div>
         </aside>
         <header className="header">
           <div className="header-left">
@@ -685,9 +692,34 @@ export default function App() {
           )}
           {activeTab === 'study' && (
             <div className="study-container">
-              <div className="stats-grid"><div className="stat-card"><div className="stat-value">3</div><div className="stat-label">Pages read</div></div><div className="stat-card"><div className="stat-value">7</div><div className="stat-label">Problems</div></div><div className="stat-card"><div className="stat-value">12</div><div className="stat-label">Flashcards</div></div><div className="stat-card"><div className="stat-value">73%</div><div className="stat-label">Score</div></div></div>
+              <div className="stats-grid">
+                <div className="stat-card"><div className="stat-value">3</div><div className="stat-label">Pages read</div></div>
+                <div className="stat-card"><div className="stat-value">7</div><div className="stat-label">Problems</div></div>
+                <div className="stat-card"><div className="stat-value">12</div><div className="stat-label">Flashcards</div></div>
+                <div className="stat-card"><div className="stat-value">73%</div><div className="stat-label">Score</div></div>
+              </div>
+              
+              <div className="study-section-title">Summary</div>
+              <div className="summary-card">
+                <p>This chapter introduces the fundamental concept of <strong>derivatives</strong> — a measure of how a function changes as its input changes. The derivative represents the instantaneous rate of change and geometrically corresponds to the slope of the tangent line at any point on a curve.</p>
+                <p><strong>Key differentiation rules covered:</strong></p>
+                <ul>
+                  <li><strong>Power Rule:</strong> If f(x) = xⁿ, then f'(x) = nxⁿ⁻¹</li>
+                  <li><strong>Constant Rule:</strong> The derivative of a constant is zero</li>
+                  <li><strong>Sum Rule:</strong> (f + g)' = f' + g'</li>
+                  <li><strong>Product Rule:</strong> (fg)' = f'g + fg'</li>
+                  <li><strong>Quotient Rule:</strong> (f/g)' = (f'g - fg') / g²</li>
+                </ul>
+                <p>These rules provide the foundation for computing derivatives of more complex functions.</p>
+              </div>
+
               <div className="study-section-title">Flashcards</div>
-              <div className="card-list"><div className="card-item">What is a derivative?</div><div className="card-item">Power Rule formula</div><div className="card-item">Derivative of a constant</div></div>
+              <div className="card-list">
+                <div className="card-item">What is a derivative?</div>
+                <div className="card-item">Power Rule formula</div>
+                <div className="card-item">Derivative of a constant</div>
+              </div>
+              
               <div className="study-section-title">Highlights</div>
               {["The derivative measures rate of change", "f'(x) = lim[h→0] (f(x+h) - f(x)) / h", ...highlights].map((h, i) => (<div key={i} className="highlight-item">{h}</div>))}
             </div>
