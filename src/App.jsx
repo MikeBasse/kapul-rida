@@ -293,7 +293,7 @@ export default function App() {
         <nav className="sidebar-nav"><div className="nav-section"><span className="nav-section-title">Library</span>
           {Object.entries(bookLists).map(([k,list])=>(<button key={k} className={`nav-item ${currentList===k?'active':''}`} onClick={()=>{setCurrentList(k);setSidebarOpen(false)}}><span className="nav-icon">{list.icon}</span><span className="nav-label">{list.name}</span><span className="nav-count">{k==='all'?books.length:k==='favorites'?books.filter(b=>b.isFavorite).length:k==='toRead'?books.filter(b=>b.status==='toRead').length:books.filter(b=>b.status==='haveRead').length}</span></button>))}
         </div></nav>
-        <div className="sidebar-footer"><span className="footer-text">Kapul Learning Society</span></div>
+        <div className="sidebar-footer"><span className="footer-text">Kapul Learning Systems</span></div>
       </aside>
       <header className="header">
         <div className="header-left">
