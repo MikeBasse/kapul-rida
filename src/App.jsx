@@ -49,101 +49,8 @@ Problem 3: If y = (2x + 1) / (x - 1), find dy/dx`
   ]
 }
 
-const initialBooks = [
-  { 
-    id: 1, 
-    title: "Calculus", 
-    author: "James Stewart", 
-    progress: 35, 
-    color: "#DA7756", 
-    format: "pdf", 
-    lastRead: "2 hours ago",
-    coverImage: "https://drive.google.com/file/d/1xqiwbEE4NiiwfC6JwvzIwuZip4quOQYR/view?usp=drive_link",
-    fileData: null,
-    totalPages: 0,
-    currentPage: 1
-  },
-  { 
-    id: 2, 
-    title: "Organic Chemistry", 
-    author: "David Klein", 
-    progress: 12, 
-    color: "#5A9A6E", 
-    format: "pdf", 
-    lastRead: "Yesterday",
-    coverImage: "https://drive.google.com/file/d/1GrQEXdvjJcKIpr0eoMpEbNCZSnXOyHmP/view?usp=drive_link",
-    fileData: null,
-    totalPages: 0,
-    currentPage: 1
-  },
-  { 
-    id: 3, 
-    title: "Physics", 
-    author: "Halliday & Resnick", 
-    progress: 67, 
-    color: "#6B8ACE", 
-    format: "epub", 
-    lastRead: "3 days ago",
-    coverImage: "https://drive.google.com/file/d/1q2KO9rVlwwYD93uFtbu474tY2QThvlWS/view?usp=drive_link",
-    fileData: null,
-    totalPages: 0,
-    currentPage: 1
-  },
-  { 
-    id: 4, 
-    title: "Linear Algebra", 
-    author: "Gilbert Strang", 
-    progress: 8, 
-    color: "#9B7AC7", 
-    format: "pdf", 
-    lastRead: "1 week ago",
-    coverImage: "https://drive.google.com/file/d/1CVu95jSVd1N5L0nhRFsuj922qDBQ0ehl/view?usp=drive_link",
-    fileData: null,
-    totalPages: 0,
-    currentPage: 1
-  },
-  { 
-    id: 5, 
-    title: "Biology", 
-    author: "Campbell", 
-    progress: 22, 
-    color: "#C97A8B", 
-    format: "pdf", 
-    lastRead: "2 weeks ago",
-    coverImage: "https://drive.google.com/file/d/1wjqNt-P2YH9moUBYR7if2SD1cCZTEIy3/view?usp=drive_link",
-    fileData: null,
-    totalPages: 0,
-    currentPage: 1
-  },
-  { 
-    id: 6, 
-    title: "Chemistry", 
-    author: "Zumdahl", 
-    progress: 0, 
-    color: "#5AADAD", 
-    format: "epub", 
-    lastRead: "New",
-    coverImage: "https://drive.google.com/file/d/1Ksix4GwUYu7SE121wi_bJNEUz5WFzN1M/view?usp=drive_link",
-    fileData: null,
-    totalPages: 0,
-    currentPage: 1
-  }
-]
-
-function getGoogleDriveImageUrl(input) {
-  if (!input || !input.trim()) return null
-  const trimmed = input.trim()
-  if (trimmed.startsWith('http') && !trimmed.includes('drive.google.com')) return trimmed
-  if (trimmed.includes('drive.google.com/uc?')) return trimmed
-  let fileId = null
-  const fileMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
-  if (fileMatch) fileId = fileMatch[1]
-  const openMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/)
-  if (!fileId && openMatch) fileId = openMatch[1]
-  if (!fileId && /^[a-zA-Z0-9_-]{20,}$/.test(trimmed)) fileId = trimmed
-  if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`
-  return trimmed
-}
+// Empty library - ready for users to add their own books
+const initialBooks = []
 
 const getAIResponse = (type, text) => {
   const responses = {
@@ -204,27 +111,6 @@ function KLSLogo({ size = 32 }) {
   )
 }
 
-function BookCoverImage({ src, alt, className }) {
-  const [error, setError] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const imageUrl = getGoogleDriveImageUrl(src)
-  if (!imageUrl || error) return null
-  return (
-    <>
-      {loading && <div className="image-loading">Loading...</div>}
-      <img 
-        src={imageUrl} 
-        alt={alt}
-        className={className}
-        onError={() => setError(true)}
-        onLoad={() => setLoading(false)}
-        style={{ display: loading ? 'none' : 'block' }}
-        referrerPolicy="no-referrer"
-      />
-    </>
-  )
-}
-
 // Icons
 function MenuIcon() {
   return (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>)
@@ -260,10 +146,6 @@ function SearchIcon() {
 
 function CloseIcon() {
   return (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>)
-}
-
-function ImageIcon() {
-  return (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>)
 }
 
 function ChevronLeftIcon() {
@@ -581,8 +463,6 @@ export default function App() {
   const [uploadError, setUploadError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [currentBook, setCurrentBook] = useState(null)
-  const [showImageInput, setShowImageInput] = useState(null)
-  const [imageUrl, setImageUrl] = useState('')
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isUploading, setIsUploading] = useState(false)
   
@@ -717,32 +597,15 @@ export default function App() {
     setCurrentBook(updatedBook)
   }
 
-  const addCoverImage = (bookId) => {
-    if (!imageUrl.trim()) return
-    setBooks(books.map(b => b.id === bookId ? { ...b, coverImage: imageUrl.trim() } : b))
-    setShowImageInput(null)
-    setImageUrl('')
-  }
-
-  const openImageInput = (bookId, e) => {
-    e.stopPropagation()
-    setShowImageInput(bookId)
-    const book = books.find(b => b.id === bookId)
-    setImageUrl(book?.coverImage || '')
-  }
-
   const filteredBooks = books.filter(book => 
     book.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
     book.author.toLowerCase().includes(searchQuery.toLowerCase())
   )
   
   const recentBooks = [...books]
-    .filter(b => b.progress > 0)
-    .sort((a, b) => b.progress - a.progress)
+    .filter(b => b.progress > 0 || b.fileData)
+    .sort((a, b) => (b.progress || 0) - (a.progress || 0))
     .slice(0, 4)
-
-  const hasValidCover = (book) => book.coverImage && book.coverImage.trim().length > 0
-  const hasFileData = (book) => book.fileData !== null
 
   const styles = `
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -838,7 +701,7 @@ export default function App() {
     .book-action-btn { width: 24px; height: 24px; border-radius: 50%; background: rgba(0,0,0,0.6); border: none; color: white; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .book-action-btn:hover { background: rgba(0,0,0,0.8); }
     .book-action-btn.delete:hover { background: var(--danger); }
-    .book-badge { position: absolute; top: 6px; left: 6px; background: var(--success); color: white; font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 4px; z-index: 3; }
+    .book-format-badge { position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.5); color: white; font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 4px; z-index: 3; }
     .book-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .book-author { font-size: 11px; color: var(--text-secondary); }
     .book-list { display: flex; flex-direction: column; gap: 6px; }
@@ -848,7 +711,7 @@ export default function App() {
     .book-list-cover img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
     .book-list-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
     .book-list-title { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; display: flex; align-items: center; gap: 8px; }
-    .book-list-badge { background: var(--success); color: white; font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 3px; }
+    .book-list-format { background: var(--bg-tertiary); color: var(--text-secondary); font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 3px; }
     .book-list-author { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
     .book-list-meta { display: flex; align-items: center; gap: 10px; }
     .book-list-progress { flex: 1; max-width: 100px; height: 3px; background: var(--bg-tertiary); border-radius: 2px; overflow: hidden; }
@@ -860,10 +723,14 @@ export default function App() {
     .book-list-action-btn { width: 28px; height: 28px; border-radius: 6px; background: var(--bg-tertiary); border: none; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .book-list-action-btn:hover { background: var(--border); color: var(--text-primary); }
     .book-list-action-btn.delete:hover { background: var(--danger); color: white; }
-    .empty-state { text-align: center; padding: 50px 20px; }
-    .empty-icon { font-size: 44px; margin-bottom: 14px; opacity: 0.5; }
-    .empty-text { font-size: 14px; color: var(--text-secondary); margin-bottom: 18px; }
-    .empty-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; background: var(--accent); border: none; border-radius: 8px; color: white; font-size: 14px; font-weight: 500; cursor: pointer; }
+    
+    /* Empty State */
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .empty-icon { font-size: 56px; margin-bottom: 16px; }
+    .empty-title { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+    .empty-text { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; }
+    .empty-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: var(--accent); border: none; border-radius: 10px; color: white; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+    .empty-btn:hover { background: var(--accent-light); }
     
     /* Document Reader Styles */
     .document-reader { display: flex; flex-direction: column; height: calc(100vh - 57px); background: var(--bg-secondary); }
@@ -1010,7 +877,7 @@ export default function App() {
             <button className={`nav-item ${activeTab === 'reader' ? 'active' : ''}`} onClick={() => handleTabChange('reader')}><ReadIcon active={activeTab === 'reader'} />Read</button>
             <button className={`nav-item ${activeTab === 'study' ? 'active' : ''}`} onClick={() => handleTabChange('study')}><StudyIcon active={activeTab === 'study'} />Study</button>
           </nav>
-          <div className="sidebar-footer"><div className="sidebar-footer-text">Kapul Learning Systems</div></div>
+          <div className="sidebar-footer"><div className="sidebar-footer-text">Kapul Learning System</div></div>
         </aside>
         <header className="header">
           <div className="header-left">
@@ -1019,7 +886,7 @@ export default function App() {
           </div>
           <div className="header-actions">{activeTab === 'library' && <button className="icon-btn accent" onClick={() => setShowAddMenu(true)}><PlusIcon /></button>}</div>
         </header>
-        <main className={`main ${activeTab === 'reader' && currentBook?.fileData ? 'reader-mode' : ''}`}>
+        <main className="main">
           {activeTab === 'library' && (
             <div className="library-container">
               <div className="search-bar"><SearchIcon /><input type="text" className="search-input" placeholder="Search books..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} /></div>
@@ -1029,8 +896,8 @@ export default function App() {
                   <div className="continue-scroll">
                     {recentBooks.map(book => (
                       <div key={book.id} className="continue-card" onClick={() => openBook(book)}>
-                        <div className="continue-cover" style={{background: hasValidCover(book) ? 'var(--bg-tertiary)' : book.color}}>
-                          {hasValidCover(book) ? <BookCoverImage src={book.coverImage} alt={book.title} /> : book.title.charAt(0)}
+                        <div className="continue-cover" style={{background: book.color}}>
+                          {book.title.charAt(0)}
                         </div>
                         <div className="continue-info">
                           <div className="continue-title">{book.title}</div>
@@ -1054,28 +921,22 @@ export default function App() {
               {filteredBooks.length === 0 ? (
                 <div className="empty-state">
                   <div className="empty-icon">📚</div>
-                  <div className="empty-text">{searchQuery ? 'No books found' : 'Your library is empty'}</div>
-                  {!searchQuery && <button className="empty-btn" onClick={() => setShowAddMenu(true)}><PlusIcon /> Add your first book or document</button>}
+                  <div className="empty-title">{searchQuery ? 'No books found' : 'Welcome to Kapul Reader'}</div>
+                  <div className="empty-text">{searchQuery ? 'Try a different search term' : 'Upload PDF or EPUB files to start reading'}</div>
+                  {!searchQuery && <button className="empty-btn" onClick={() => setShowAddMenu(true)}><PlusIcon /> Add Your First Book</button>}
                 </div>
               ) : viewMode === 'grid' ? (
                 <div className="book-grid">
                   {filteredBooks.map(book => (
                     <div key={book.id} className="book-card" onClick={() => openBook(book)}>
                       <div className="book-cover-wrap">
-                        <div className="book-cover" style={{background: hasValidCover(book) ? 'var(--bg-tertiary)' : book.color}}>
-                          {hasValidCover(book) ? (
-                            <BookCoverImage src={book.coverImage} alt={book.title} className="book-cover-image" />
-                          ) : (
-                            <>
-                              <span className="book-initial">{book.title.charAt(0)}</span>
-                              <span className="book-cover-title">{book.title}</span>
-                            </>
-                          )}
+                        <div className="book-cover" style={{background: book.color}}>
+                          <span className="book-initial">{book.title.charAt(0)}</span>
+                          <span className="book-cover-title">{book.title}</span>
                         </div>
                         {book.progress > 0 && <div className="book-progress-line"><div className="book-progress-line-fill" style={{width: `${book.progress}%`}} /></div>}
-                        {hasFileData(book) && <div className="book-badge">Ready</div>}
+                        <div className="book-format-badge">{book.format.toUpperCase()}</div>
                         <div className="book-actions">
-                          <button className="book-action-btn" onClick={(e) => openImageInput(book.id, e)} title="Add cover image"><ImageIcon /></button>
                           <button className="book-action-btn delete" onClick={(e) => deleteBook(book.id, e)} title="Delete">×</button>
                         </div>
                       </div>
@@ -1088,19 +949,18 @@ export default function App() {
                 <div className="book-list">
                   {filteredBooks.map(book => (
                     <div key={book.id} className="book-list-item" onClick={() => openBook(book)}>
-                      <div className="book-list-cover" style={{background: hasValidCover(book) ? 'var(--bg-tertiary)' : book.color}}>
-                        {hasValidCover(book) ? <BookCoverImage src={book.coverImage} alt={book.title} /> : book.title.charAt(0)}
+                      <div className="book-list-cover" style={{background: book.color}}>
+                        {book.title.charAt(0)}
                       </div>
                       <div className="book-list-info">
                         <div className="book-list-title">
                           {book.title}
-                          {hasFileData(book) && <span className="book-list-badge">Ready</span>}
+                          <span className="book-list-format">{book.format.toUpperCase()}</span>
                         </div>
                         <div className="book-list-author">{book.author}</div>
                         <div className="book-list-meta"><div className="book-list-progress"><div className="book-list-progress-fill" style={{width: `${book.progress}%`}} /></div><span className="book-list-percent">{book.progress}%</span><span className="book-list-time">{book.lastRead}</span></div>
                       </div>
                       <div className="book-list-actions">
-                        <button className="book-list-action-btn" onClick={(e) => openImageInput(book.id, e)} title="Add cover image"><ImageIcon /></button>
                         <button className="book-list-action-btn delete" onClick={(e) => deleteBook(book.id, e)} title="Delete">×</button>
                       </div>
                     </div>
@@ -1110,34 +970,24 @@ export default function App() {
             </div>
           )}
           {activeTab === 'reader' && (
-            <>
-              {currentBook?.fileData ? (
-                <DocumentReader book={currentBook} onUpdateBook={updateBook} />
-              ) : (
-                <div className="reader-container" onMouseUp={handleSelect} onTouchEnd={handleSelect}>
-                  {!currentBook ? (
-                    <div className="no-file-message">
-                      <div className="no-file-icon">📖</div>
-                      <div className="no-file-text">No book selected</div>
-                      <div className="no-file-subtext">Select a book from your library to start reading</div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="doc-header">
-                        <h1 className="doc-title">{currentBook?.title || sampleContent.title}</h1>
-                        <p className="doc-subtitle">{sampleContent.chapter}</p>
-                        <div className="progress-row"><div className="progress-bar"><div className="progress-fill" style={{width: `${currentBook?.progress || 35}%`}} /></div><span className="progress-text">{currentBook?.progress || 35}%</span></div>
-                      </div>
-                      <div className="no-file-message" style={{ height: 'auto', paddingTop: 0 }}>
-                        <div className="no-file-text">This book doesn't have file data</div>
-                        <div className="no-file-subtext">Upload a PDF or EPUB to read the actual content. Showing sample content below.</div>
-                      </div>
-                      {sampleContent.sections.map(section => (<div key={section.id} className="section"><h2 className="section-heading">{section.heading}</h2>{section.content.split('\n\n').map((para, i) => (<p key={i} className="paragraph">{para}</p>))}</div>))}
-                    </>
-                  )}
+            <div className="reader-container" onMouseUp={handleSelect} onTouchEnd={handleSelect}>
+              {!currentBook ? (
+                <div className="no-file-message">
+                  <div className="no-file-icon">📖</div>
+                  <div className="no-file-text">No book selected</div>
+                  <div className="no-file-subtext">Select a book from your library or upload a new one</div>
+                  <button className="primary-btn" style={{ marginTop: 16, width: 'auto', padding: '10px 20px' }} onClick={() => setShowAddMenu(true)}>
+                    <PlusIcon /> Upload a Book
+                  </button>
                 </div>
-              )}
-            </>
+              ) : !currentBook.fileData ? (
+                <div className="no-file-message">
+                  <div className="no-file-icon">⚠️</div>
+                  <div className="no-file-text">File not loaded</div>
+                  <div className="no-file-subtext">This book's file data is missing. Please re-upload the file.</div>
+                </div>
+              ) : null}
+            </div>
           )}
           {activeTab === 'study' && (
             <div className="study-container">
@@ -1197,36 +1047,6 @@ export default function App() {
               <div className="add-menu-header"><span className="add-menu-title">Add to Library</span><button className="close-btn" onClick={() => setShowAddMenu(false)}><CloseIcon /></button></div>
               <div className="add-menu-item" onClick={triggerFileUpload}><div className="add-menu-icon pdf">📕</div><div className="add-menu-text"><div className="add-menu-item-title">PDF Book or Document</div><div className="add-menu-item-desc">Upload a PDF file</div></div></div>
               <div className="add-menu-item" onClick={triggerFileUpload}><div className="add-menu-icon epub">📗</div><div className="add-menu-text"><div className="add-menu-item-title">EPUB Book or Document</div><div className="add-menu-item-desc">Upload an EPUB file</div></div></div>
-            </div>
-          </div>
-        )}
-        {showImageInput !== null && (
-          <div className="image-input-overlay" onClick={() => { setShowImageInput(null); setImageUrl('') }}>
-            <div className="image-input-card" onClick={e => e.stopPropagation()}>
-              <div className="image-input-title">Add Cover Image</div>
-              <div className="image-input-subtitle">Enter a Google Drive image link or file ID</div>
-              <input 
-                type="text" 
-                className="image-url-input" 
-                placeholder="Paste link or file ID here..." 
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                autoFocus
-              />
-              <div className="image-input-help">
-                <strong>How to get the image link:</strong><br/>
-                1. Open the image in Google Drive<br/>
-                2. Click ⋮ → Share → Copy link<br/>
-                3. Paste the entire link here<br/><br/>
-                <strong>Accepted formats:</strong><br/>
-                • Full share link: drive.google.com/file/d/FILE_ID/view<br/>
-                • Just the file ID (long string of letters/numbers)
-              </div>
-              <div className="image-input-buttons">
-                <button className="secondary-btn" onClick={() => { setShowImageInput(null); setImageUrl('') }}>Cancel</button>
-                <button className="primary-btn" onClick={() => addCoverImage(showImageInput)}>Save</button>
-              </div>
-              <button className="close-quiz" onClick={() => { setShowImageInput(null); setImageUrl('') }}>×</button>
             </div>
           </div>
         )}
